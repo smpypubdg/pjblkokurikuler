@@ -1056,13 +1056,7 @@
           
           let members = initialMems;
           let isStructureLocked = false;
-          let presensiList = [
-            {
-              id: 'p-1',
-              date: new Date().toISOString().split('T')[0],
-              records: initialMems.map(m => ({ studentId: m.id, name: m.name, status: 'Hadir', note: '' }))
-            }
-          ];
+          let presensiList = [];
           let lkpdList = [];
           let jurnalList = [];
 
@@ -2172,10 +2166,10 @@
         members.forEach(m => {
           if (existing && existing.records) {
             const rec = existing.records.find(r => r.studentId === m.id);
-            initialStatus[m.id] = rec ? rec.status : 'Hadir';
+            initialStatus[m.id] = rec ? rec.status : '';
             initialNotes[m.id] = rec ? rec.note || '' : '';
           } else {
-            initialStatus[m.id] = 'Hadir';
+            initialStatus[m.id] = '';
             initialNotes[m.id] = '';
           }
         });
@@ -2194,10 +2188,17 @@
 
       const handleSavePresensi = (e) => {
         e.preventDefault();
+        
+        const unselected = members.filter(m => !currentStatusMap[m.id] || currentStatusMap[m.id] === 'Belum diisi');
+        if (unselected.length > 0) {
+          showToast('Harap pilih status presensi untuk semua siswa terlebih dahulu!', 'error');
+          return;
+        }
+
         const records = members.map(m => ({
           studentId: m.id,
           name: m.name,
-          status: currentStatusMap[m.id] || 'Hadir',
+          status: currentStatusMap[m.id],
           note: notesMap[m.id] || ''
         }));
 
@@ -2331,7 +2332,7 @@
                         <td className="py-3.5 px-4">
                           <div className="flex flex-wrap gap-1.5">
                             {['Hadir', 'Sakit', 'Izin', 'Alfa', 'Dispensasi'].map((status) => {
-                              const isSelected = (currentStatusMap[m.id] || 'Hadir') === status;
+                              const isSelected = currentStatusMap[m.id] === status;
                               const cfg = STATUS_CONFIG[status];
                               return (
                                 <button
@@ -3268,13 +3269,7 @@
         if (!currentGroup) return;
 
         const initialMems = getInitialMembersForGroup(currentGroup.rawGroup);
-        const initialPres = [
-          {
-            id: 'p-1',
-            date: new Date().toISOString().split('T')[0],
-            records: initialMems.map(m => ({ studentId: m.id, name: m.name, status: 'Hadir', note: '' }))
-          }
-        ];
+        const initialPres = [];
 
         const gKey = `pjbl_data_${currentGroup.id}`;
         const savedLocal = localStorage.getItem(gKey);
