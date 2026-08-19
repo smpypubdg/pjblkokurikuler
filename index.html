@@ -25,12 +25,12 @@
     
     // Fallback Firebase Config
     const defaultConfig = {
-      apiKey: "AIzaSyB_dummy_key_for_preview_testing_12345",
-      authDomain: "smp-ypu-pjbl.firebaseapp.com",
-      projectId: "smp-ypu-pjbl",
-      storageBucket: "smp-ypu-pjbl.appspot.com",
-      messagingSenderId: "123456789012",
-      appId: "1:123456789012:web:abcdef1234567890"
+      apiKey: "AIzaSyB3ty_hDLilMsHmIL3zDfUKFBvhMDGI_q0",
+      authDomain: "ldks-smp-ypu-2026.firebaseapp.com",
+      projectId: "ldks-smp-ypu-2026",
+      storageBucket: "ldks-smp-ypu-2026.firebasestorage.app",
+      messagingSenderId: "663966002036",
+      appId: "1:663966002036:web:66afbccef6e2ecb7079a21"
     };
 
     let firebaseConfig = defaultConfig;
@@ -183,12 +183,41 @@
     const GraduationCap = makeIcon('<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>');
     const Send = makeIcon('<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>');
     const Cloud = makeIcon('<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>');
-    const Download = makeIcon('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>');
     const Printer = makeIcon('<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>');
 
     const LOGO_URL = 'https://i.ibb.co.com/8gMSjY4F/IMG-20251203-114653.png';
 
-    // Download Single File Helper
+    const syncToGoogleAppsScript = (action, payload) => {
+      // 1. Direct Apps Script google.script.run when executed inside GAS Web App
+      if (typeof google !== 'undefined' && google && google.script && google.script.run) {
+        if (action === 'syncPresensi') {
+          google.script.run
+            .withSuccessHandler(res => console.log("GAS Sync Presensi OK:", res))
+            .withFailureHandler(err => console.warn("GAS Sync Presensi Error:", err))
+            .logPresensiToSheet(payload);
+        } else if (action === 'syncJurnal') {
+          google.script.run
+            .withSuccessHandler(res => console.log("GAS Sync Jurnal OK:", res))
+            .withFailureHandler(err => console.warn("GAS Sync Jurnal Error:", err))
+            .logJurnalToSheet(payload);
+        } else if (action === 'syncLKPD') {
+          google.script.run
+            .withSuccessHandler(res => console.log("GAS Sync LKPD OK:", res))
+            .withFailureHandler(err => console.warn("GAS Sync LKPD Error:", err))
+            .logLkpdToSheet(payload);
+        }
+      } 
+      // 2. HTTP Fetch POST fallback if GAS Web App URL is defined globally
+      else if (window.GAS_WEB_APP_URL) {
+        fetch(window.GAS_WEB_APP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action, data: payload })
+        }).catch(err => console.warn("GAS Fetch POST sync error:", err));
+      }
+    };
+
     const downloadFile = (url, filename) => {
       const a = document.createElement('a');
       a.href = url;
@@ -198,7 +227,6 @@
       document.body.removeChild(a);
     };
 
-    // Printable Jurnal Report HTML Exporter
     const downloadJurnalReport = (data) => {
       const groupName = data.groupName || 'Kelompok';
       const dateStr = data.date || new Date().toISOString().split('T')[0];
@@ -298,6 +326,357 @@
       <p>Bandung, ${dateStr}</p>
       <p style="margin-bottom: 60px;">Pemateri / Pembimbing</p>
       <p style="text-decoration: underline;">( ${data.pemateri} )</p>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function() {
+      setTimeout(function() { window.print(); }, 500);
+    };
+  <\/script>
+</body>
+</html>`;
+
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    // Printable Presensi Harian Report Exporter
+    const downloadPresensiHarianReport = ({ groupName, date, records, members }) => {
+      const dateStr = date || new Date().toISOString().split('T')[0];
+      const filename = `Laporan_Presensi_Harian_${(groupName || 'Kelompok').replace(/\s+/g, '_')}_${dateStr}.html`;
+
+      let hadir = 0, sakit = 0, izin = 0, alfa = 0, dispensasi = 0;
+
+      const rows = members.map((m, idx) => {
+        const rec = records?.find(r => r.studentId === m.id);
+        const status = rec?.status || 'Belum Diisi';
+        const note = rec?.note || '-';
+
+        if (status === 'Hadir') hadir++;
+        else if (status === 'Sakit') sakit++;
+        else if (status === 'Izin') izin++;
+        else if (status === 'Alfa') alfa++;
+        else if (status === 'Dispensasi') dispensasi++;
+
+        return `
+          <tr>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">${idx + 1}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold;">${m.name}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">${m.kelas || '-'}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">${m.nis || '-'}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">${m.role || 'Anggota'}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">${status}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1;">${note}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const htmlContent = `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Laporan Presensi Harian ${groupName} - ${dateStr}</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; color: #1e293b; max-width: 800px; margin: 0 auto; }
+    .header { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px; }
+    .header img { width: 50px; height: 50px; }
+    .header h1 { margin: 5px 0 2px 0; font-size: 18px; text-transform: uppercase; font-weight: 900; }
+    .header p { margin: 2px 0; font-size: 12px; color: #475569; }
+    .meta-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 12px; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; text-align: center; margin-bottom: 15px; }
+    .stat-card { background: #f1f5f9; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 11px; }
+    .stat-card span { display: block; font-size: 14px; font-weight: bold; margin-top: 2px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+    th { background: #0f172a; color: white; padding: 8px; border: 1px solid #cbd5e1; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+    .signatures { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; text-align: center; font-size: 11px; font-weight: bold; }
+    .btn-print { background: #059669; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 20px; font-size: 12px; }
+    @media print { .btn-print { display: none; } }
+  </style>
+</head>
+<body>
+  <button class="btn-print" onclick="window.print()">🖨️ Cetak / Simpan ke PDF</button>
+
+  <div class="header">
+    <img src="${LOGO_URL}" alt="Logo SMP YPU Bandung">
+    <h1>SMP YPU BANDUNG</h1>
+    <p><strong>LAPORAN PRESENSI HARIAN PjBL KOKURIKULER</strong></p>
+    <p>Leadership & Character Building Camp</p>
+  </div>
+
+  <div class="meta-box">
+    <div class="meta-grid">
+      <div><strong>NAMA KELOMPOK / REGU:</strong><br><span style="font-size: 14px; font-weight: bold; color: #0f172a;">${groupName}</span></div>
+      <div><strong>TANGGAL KEGIATAN:</strong><br><span style="font-size: 14px; font-weight: bold; color: #0f172a;">${dateStr}</span></div>
+    </div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="stat-card" style="background:#ecfdf5; border-color:#a7f3d0; color:#065f46;">Hadir<span>${hadir}</span></div>
+    <div class="stat-card" style="background:#fffbeb; border-color:#fde68a; color:#92400e;">Sakit<span>${sakit}</span></div>
+    <div class="stat-card" style="background:#eff6ff; border-color:#bfdbfe; color:#1e40af;">Izin<span>${izin}</span></div>
+    <div class="stat-card" style="background:#fef2f2; border-color:#fecaca; color:#991b1b;">Alfa<span>${alfa}</span></div>
+    <div class="stat-card" style="background:#faf5ff; border-color:#e9d5ff; color:#6b21a8;">Dispensasi<span>${dispensasi}</span></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama Siswa</th>
+        <th>Kelas</th>
+        <th>NIS</th>
+        <th>Peran</th>
+        <th>Status</th>
+        <th>Keterangan</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+  </table>
+
+  <div class="signatures">
+    <div>
+      <p>Mengetahui,</p>
+      <p style="margin-bottom: 60px;">Ketua Kelompok ${groupName}</p>
+      <p style="text-decoration: underline;">( ............................................ )</p>
+    </div>
+    <div>
+      <p>Bandung, ${dateStr}</p>
+      <p style="margin-bottom: 60px;">Pembimbing / Pendamping Regu</p>
+      <p style="text-decoration: underline;">( ............................................ )</p>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function() {
+      setTimeout(function() { window.print(); }, 500);
+    };
+  <\/script>
+</body>
+</html>`;
+
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    // Printable Rekapitulasi Kehadiran Single Group Exporter
+    const downloadRekapKehadiranGroupReport = ({ groupName, members, presensiList, studentRecapMap }) => {
+      const dateStr = new Date().toISOString().split('T')[0];
+      const filename = `Laporan_Rekap_Kehadiran_${(groupName || 'Kelompok').replace(/\s+/g, '_')}_${dateStr}.html`;
+      const totalSessions = presensiList.length || 1;
+
+      const rows = studentRecapMap.map((s, idx) => {
+        const pct = Math.round((s.hadir / totalSessions) * 100);
+        return `
+          <tr>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">${idx + 1}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold;">${s.name}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">${s.kelas || '-'}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center; color: #059669; font-weight: bold;">${s.hadir}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center; color: #d97706; font-weight: bold;">${s.sakit}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center; color: #2563eb; font-weight: bold;">${s.izin}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center; color: #dc2626; font-weight: bold;">${s.alfa}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center; color: #7c3aed; font-weight: bold;">${s.dispensasi}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: bold;">${pct}%</td>
+          </tr>
+        `;
+      }).join('');
+
+      const htmlContent = `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Laporan Rekap Kehadiran ${groupName}</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; color: #1e293b; max-width: 800px; margin: 0 auto; }
+    .header { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px; }
+    .header img { width: 50px; height: 50px; }
+    .header h1 { margin: 5px 0 2px 0; font-size: 18px; text-transform: uppercase; font-weight: 900; }
+    .header p { margin: 2px 0; font-size: 12px; color: #475569; }
+    .meta-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 12px; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+    th { background: #0f172a; color: white; padding: 8px; border: 1px solid #cbd5e1; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+    .signatures { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; text-align: center; font-size: 11px; font-weight: bold; }
+    .btn-print { background: #059669; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 20px; font-size: 12px; }
+    @media print { .btn-print { display: none; } }
+  </style>
+</head>
+<body>
+  <button class="btn-print" onclick="window.print()">🖨️ Cetak / Simpan ke PDF</button>
+
+  <div class="header">
+    <img src="${LOGO_URL}" alt="Logo SMP YPU Bandung">
+    <h1>SMP YPU BANDUNG</h1>
+    <p><strong>LAPORAN REKAPITULASI KEHADIRAN KELOMPOK (AKUMULASI PjBL)</strong></p>
+    <p>Leadership & Character Building Camp</p>
+  </div>
+
+  <div class="meta-box">
+    <div class="meta-grid">
+      <div><strong>NAMA KELOMPOK / REGU:</strong><br><span style="font-size: 14px; font-weight: bold; color: #0f172a;">${groupName}</span></div>
+      <div><strong>TOTAL SESI PRESENSI:</strong><br><span style="font-size: 14px; font-weight: bold; color: #0f172a;">${totalSessions} Sesi Recorded</span></div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama Siswa</th>
+        <th>Kelas</th>
+        <th>Hadir</th>
+        <th>Sakit</th>
+        <th>Izin</th>
+        <th>Alfa</th>
+        <th>Disp.</th>
+        <th>Persentase</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+  </table>
+
+  <div class="signatures">
+    <div>
+      <p>Mengetahui,</p>
+      <p style="margin-bottom: 60px;">Ketua Kelompok ${groupName}</p>
+      <p style="text-decoration: underline;">( ............................................ )</p>
+    </div>
+    <div>
+      <p>Bandung, ${dateStr}</p>
+      <p style="margin-bottom: 60px;">Pembimbing / Pendamping Regu</p>
+      <p style="text-decoration: underline;">( ............................................ )</p>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function() {
+      setTimeout(function() { window.print(); }, 500);
+    };
+  <\/script>
+</body>
+</html>`;
+
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    // Printable Rekapitulasi Total Kehadiran All Groups Exporter (Admin)
+    const downloadRekapTotalKehadiranAllReport = ({ attendanceRecapData, filterGroup, filterDate }) => {
+      const dateStr = new Date().toISOString().split('T')[0];
+      const filename = `Laporan_Rekap_Total_Kehadiran_Seluruh_Regu_${dateStr}.html`;
+
+      const filtered = attendanceRecapData.filter(item => filterGroup === 'ALL' || item.group.id === filterGroup);
+
+      const rows = filtered.map((item, idx) => {
+        return `
+          <tr>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">${idx + 1}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold;">${item.group.name}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">${item.studentCount} Murid</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">${item.sessionCount} Sesi</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center; color: #059669; font-weight: bold;">${item.totalHadir}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center; color: #d97706; font-weight: bold;">${item.totalSakit}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center; color: #2563eb; font-weight: bold;">${item.totalIzin}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center; color: #dc2626; font-weight: bold;">${item.totalAlfa}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; font-size: 13px;">${item.rate}%</td>
+          </tr>
+        `;
+      }).join('');
+
+      const htmlContent = `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Laporan Rekap Total Kehadiran Seluruh Regu PjBL</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; color: #1e293b; max-width: 900px; margin: 0 auto; }
+    .header { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px; }
+    .header img { width: 50px; height: 50px; }
+    .header h1 { margin: 5px 0 2px 0; font-size: 18px; text-transform: uppercase; font-weight: 900; }
+    .header p { margin: 2px 0; font-size: 12px; color: #475569; }
+    .meta-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 12px; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+    th { background: #0f172a; color: white; padding: 8px; border: 1px solid #cbd5e1; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+    .signatures { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; text-align: center; font-size: 11px; font-weight: bold; }
+    .btn-print { background: #059669; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 20px; font-size: 12px; }
+    @media print { .btn-print { display: none; } }
+  </style>
+</head>
+<body>
+  <button class="btn-print" onclick="window.print()">🖨️ Cetak / Simpan ke PDF</button>
+
+  <div class="header">
+    <img src="${LOGO_URL}" alt="Logo SMP YPU Bandung">
+    <h1>SMP YPU BANDUNG</h1>
+    <p><strong>LAPORAN REKAPITULASI TOTAL KEHADIRAN SELURUH REGU</strong></p>
+    <p>PjBL Kokurikuler • Leadership & Character Building Camp</p>
+  </div>
+
+  <div class="meta-box">
+    <div class="meta-grid">
+      <div><strong>TOTAL REGU:</strong><br><span style="font-size: 14px; font-weight: bold; color: #0f172a;">${filtered.length} Kelompok</span></div>
+      <div><strong>TANGGAL CETAK:</strong><br><span style="font-size: 14px; font-weight: bold; color: #0f172a;">${dateStr}</span></div>
+      <div><strong>FILTER TANGGAL:</strong><br><span style="font-size: 14px; font-weight: bold; color: #0f172a;">${filterDate || 'Semua Tanggal'}</span></div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama Kelompok</th>
+        <th>Jumlah Siswa</th>
+        <th>Sesi Recorded</th>
+        <th>Total Hadir</th>
+        <th>Sakit</th>
+        <th>Izin</th>
+        <th>Alfa</th>
+        <th>Tingkat Kehadiran</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+  </table>
+
+  <div class="signatures">
+    <div>
+      <p>Mengetahui,</p>
+      <p style="margin-bottom: 60px;">Ketua Panitia PjBL Kokurikuler</p>
+      <p style="text-decoration: underline;">( ............................................ )</p>
+    </div>
+    <div>
+      <p>Bandung, ${dateStr}</p>
+      <p style="margin-bottom: 60px;">Kepala SMP YPU Bandung</p>
+      <p style="text-decoration: underline;">( ............................................ )</p>
     </div>
   </div>
 
@@ -684,6 +1063,48 @@
     const getGroupTheme = (rawGroup) => {
       const baseName = (rawGroup || '').split(' ')[0];
       return GROUP_THEMES[baseName] || GROUP_THEMES['Dirandra'];
+    };
+
+    const SUPERVISOR_ROOM_DATA = [
+      {
+        roomName: 'Anggana Karuna',
+        location: 'Ruang Kelas VII-A',
+        pembimbing: 'Siti Rosidah, S.Pd. Gr.',
+        groups: ['Arunika 1', 'Arunika 2', 'Ghananta 1', 'Ghananta 2']
+      },
+      {
+        roomName: 'Anggana Lavanya',
+        location: 'Ruang Kelas VII-B',
+        pembimbing: 'Ihsan M. Syahid, S.Pd.',
+        groups: ['Bramanta 1', 'Bramanta 2', 'Falana 1', 'Falana 2']
+      },
+      {
+        roomName: 'Anggana Maitri',
+        location: 'Ruang Kelas VIII-A',
+        pembimbing: 'Nia Rosania, S.S.',
+        groups: ['Cakravarti 1', 'Cakravarti 2', 'Jayananda 1', 'Jayananda 2']
+      },
+      {
+        roomName: 'Anggana Nitya',
+        location: 'Ruang Kelas IX-A',
+        pembimbing: 'Sulaeman, S.Pd.',
+        groups: ['Dirandra 1', 'Dirandra 2', 'Hiranya 1', 'Hiranya 2']
+      },
+      {
+        roomName: 'Anggana Yashasvi',
+        location: 'Ruang Kelas IX-B',
+        pembimbing: 'R. Arnis Amalia Y., S.Pd.',
+        groups: ['Elysia 1', 'Elysia 2', 'Indivar 1', 'Indivar 2']
+      }
+    ];
+
+    const getSupervisorInfo = (rawGroup) => {
+      return SUPERVISOR_ROOM_DATA.find(item => item.groups.includes(rawGroup)) || {
+        roomName: 'Ruang Perkemahan',
+        location: 'SMP YPU Bandung',
+        pembimbing: 'Pendamping Regu',
+        groups: []
+      };
     };
 
     const MAPEL_INTEGRATED = [
@@ -1453,7 +1874,7 @@
 
                       return (
                         <div key={d.group.id} className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
-                          <div className="flex items-center justify-between border-b pb-3">
+                          <div className="flex items-center justify-between border-b pb-3 flex-wrap gap-2">
                             <div>
                               <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
                                 <Users className="w-5 h-5 text-slate-700" />
@@ -1461,9 +1882,22 @@
                               </h3>
                               <p className="text-xs text-slate-500 mt-0.5">Jumlah Anggota: {d.members.length} Siswa</p>
                             </div>
-                            <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-bold border border-slate-300">
-                              {displayedPresensi.length} Sesi Presensi {filterDate ? `(Tgl ${filterDate})` : ''}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => downloadPresensiHarianReport({
+                                  groupName: d.group.name,
+                                  date: displayedPresensi[0]?.date || filterDate || new Date().toISOString().split('T')[0],
+                                  records: displayedPresensi[0]?.records || [],
+                                  members: d.members
+                                })}
+                                className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-xs transition-all"
+                              >
+                                <Printer className="w-3.5 h-3.5" /> Cetak PDF Presensi
+                              </button>
+                              <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-bold border border-slate-300">
+                                {displayedPresensi.length} Sesi Presensi {filterDate ? `(Tgl ${filterDate})` : ''}
+                              </span>
+                            </div>
                           </div>
 
                           {displayedPresensi.length === 0 ? (
@@ -1529,6 +1963,16 @@
                       </h3>
                       <p className="text-xs text-slate-500 mt-0.5">Statistik kehadiran per regu, kelas, dan jenis kelamin (Laki-laki / Perempuan)</p>
                     </div>
+                    <button
+                      onClick={() => downloadRekapTotalKehadiranAllReport({
+                        attendanceRecapData,
+                        filterGroup,
+                        filterDate
+                      })}
+                      className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all self-start sm:self-auto"
+                    >
+                      <Printer className="w-4 h-4" /> Cetak / Simpan PDF Rekap Total Kehadiran
+                    </button>
                   </div>
 
                   <AttendanceCharts allData={allData} filterGroup={filterGroup} filterDate={filterDate} />
@@ -1632,7 +2076,7 @@
               {adminTab === 'rekap-lkpd' && (
                 <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
                   <div className="border-b pb-4">
-                    <h3 className="font-bold text-slate-900 text-base">Matriks Rekapitulasi Pengumpulan LKPD Per Kelompok</h3>
+                    <h3 className="font-bold text-slate-900 text-base">Matriks Rekapitulasi Pengumpulkan LKPD Per Kelompok</h3>
                     <p className="text-xs text-slate-500 mt-0.5">Pemantauan kelompok yang sudah maupun belum mengunggah dokumentasi LKPD</p>
                   </div>
 
@@ -1829,10 +2273,13 @@
 
     function HomeTab({ currentGroup, activeTheme, members, setMembers, presensiList, lkpdList, jurnalList, saveDataToLocalStorage, showToast }) {
       const [showAddMember, setShowAddMember] = useState(false);
+      const [showAllRoomsModal, setShowAllRoomsModal] = useState(false);
       const [newMemberName, setNewMemberName] = useState('');
       const [newMemberKelas, setNewMemberKelas] = useState('VII-A');
       const [newMemberNis, setNewMemberNis] = useState('');
       const [newMemberRole, setNewMemberRole] = useState('Anggota');
+
+      const supervisorInfo = getSupervisorInfo(currentGroup.rawGroup);
 
       const totalPresensiRecorded = presensiList.length;
       const totalHadirCount = presensiList.reduce((acc, curr) => {
@@ -1887,6 +2334,56 @@
 
             <div className="absolute right-0 bottom-0 top-0 opacity-20 pointer-events-none flex items-center pr-6">
               <Trees className="w-48 h-48 text-white" />
+            </div>
+          </div>
+
+          {/* Supervisor & Room Information Card for Student Dashboard */}
+          <div className={`bg-white/95 backdrop-blur-sm p-6 rounded-3xl border ${activeTheme.cardBorder} shadow-xs space-y-4`}>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-2xl ${activeTheme.badgeBg} flex items-center justify-center font-bold shrink-0 border`}>
+                  <Home className={`w-5 h-5 ${activeTheme.accentText}`} />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-base">Informasi Ruangan & Pembimbing Regu</h3>
+                  <p className="text-xs text-slate-500">Lokasi pos ruangan dan pembimbing pendamping untuk kelompok ini</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAllRoomsModal(true)}
+                className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all self-start sm:self-auto border border-slate-200 flex items-center gap-1.5"
+              >
+                <Eye className="w-3.5 h-3.5 text-slate-600" /> Lihat Semua Ruangan & Pembimbing
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pembimbing Kelompok</span>
+                <p className={`text-base font-black ${activeTheme.accentText}`}>{supervisorInfo.pembimbing}</p>
+                <p className="text-[11px] text-slate-500 font-medium">Pembimbing Pendamping Regu</p>
+              </div>
+
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Nama Ruangan</span>
+                <p className="text-base font-black text-slate-800">{supervisorInfo.roomName}</p>
+                <p className="text-[11px] text-slate-500 font-medium">Pos Ruangan Perkemahan</p>
+              </div>
+
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Lokasi Tempat</span>
+                <p className="text-base font-black text-slate-800">{supervisorInfo.location}</p>
+                <p className="text-[11px] text-slate-500 font-medium">Gedung SMP YPU Bandung</p>
+              </div>
+
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Kelompok Seruangan</span>
+                <p className="text-xs font-bold text-slate-800 leading-tight">
+                  {supervisorInfo.groups.map(g => `Kelompok ${g}`).join(', ')}
+                </p>
+                <p className="text-[10px] text-slate-500">4 Kelompok / Ruangan</p>
+              </div>
             </div>
           </div>
 
@@ -2058,404 +2555,63 @@
               ))}
             </div>
           </div>
-        </div>
-      );
-    }
 
-    function PresensiTab({ activeTheme, members, presensiList, setPresensiList, saveDataToLocalStorage, showToast }) {
-      const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-      const [currentStatusMap, setCurrentStatusMap] = useState({});
-      const [notesMap, setNotesMap] = useState({});
-      const [activeView, setActiveView] = useState('input');
-
-      useEffect(() => {
-        const existing = presensiList.find(p => p.date === selectedDate);
-        const initialStatus = {};
-        const initialNotes = {};
-
-        members.forEach(m => {
-          if (existing && existing.records) {
-            const rec = existing.records.find(r => r.studentId === m.id);
-            initialStatus[m.id] = rec ? rec.status : '';
-            initialNotes[m.id] = rec ? rec.note || '' : '';
-          } else {
-            initialStatus[m.id] = '';
-            initialNotes[m.id] = '';
-          }
-        });
-
-        setCurrentStatusMap(initialStatus);
-        setNotesMap(initialNotes);
-      }, [selectedDate, members, presensiList]);
-
-      const handleStatusChange = (studentId, status) => {
-        setCurrentStatusMap(prev => ({ ...prev, [studentId]: status }));
-      };
-
-      const handleNoteChange = (studentId, note) => {
-        setNotesMap(prev => ({ ...prev, [studentId]: note }));
-      };
-
-      const handleSavePresensi = (e) => {
-        e.preventDefault();
-        const records = members.map(m => ({
-          studentId: m.id,
-          name: m.name,
-          status: currentStatusMap[m.id] || '',
-          note: notesMap[m.id] || ''
-        }));
-
-        const existingIdx = presensiList.findIndex(p => p.date === selectedDate);
-        let updated;
-
-        if (existingIdx >= 0) {
-          updated = [...presensiList];
-          updated[existingIdx] = { id: updated[existingIdx].id, date: selectedDate, records };
-        } else {
-          updated = [{ id: `pres-${Date.now()}`, date: selectedDate, records }, ...presensiList];
-        }
-
-        setPresensiList(updated);
-        saveDataToLocalStorage({ presensiList: updated });
-        showToast(`Presensi tanggal ${selectedDate} berhasil disimpan!`);
-      };
-
-      const STATUS_CONFIG = {
-        Hadir: { color: 'bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200', active: 'bg-emerald-700 text-white border-emerald-800 shadow-xs' },
-        Sakit: { color: 'bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200', active: 'bg-amber-600 text-white border-amber-700 shadow-xs' },
-        Izin: { color: 'bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200', active: 'bg-blue-600 text-white border-blue-700 shadow-xs' },
-        Alfa: { color: 'bg-rose-100 text-rose-800 border-rose-300 hover:bg-rose-200', active: 'bg-rose-600 text-white border-rose-700 shadow-xs' },
-        Dispensasi: { color: 'bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-200', active: 'bg-purple-600 text-white border-purple-700 shadow-xs' }
-      };
-
-      const studentRecapMap = members.map(m => {
-        let hadir = 0, sakit = 0, izin = 0, alfa = 0, dispensasi = 0;
-        presensiList.forEach(p => {
-          if (p.records) {
-            const rec = p.records.find(r => r.studentId === m.id);
-            if (rec) {
-              if (rec.status === 'Hadir') hadir++;
-              if (rec.status === 'Sakit') sakit++;
-              if (rec.status === 'Izin') izin++;
-              if (rec.status === 'Alfa') alfa++;
-              if (rec.status === 'Dispensasi') dispensasi++;
-            }
-          }
-        });
-        return { ...m, hadir, sakit, izin, alfa, dispensasi };
-      });
-
-      return (
-        <div className="space-y-6">
-          <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/95 backdrop-blur-sm p-4 rounded-3xl border ${activeTheme.cardBorder} shadow-xs`}>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setActiveView('input')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  activeView === 'input' 
-                    ? `${activeTheme.buttonPrimary} shadow-sm` 
-                    : 'bg-slate-100 text-slate-800 hover:bg-slate-200'
-                }`}
-              >
-                Form Input Presensi
-              </button>
-              <button
-                onClick={() => setActiveView('rekap')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  activeView === 'rekap' 
-                    ? `${activeTheme.buttonPrimary} shadow-sm` 
-                    : 'bg-slate-100 text-slate-800 hover:bg-slate-200'
-                }`}
-              >
-                Rekap Total Kehadiran
-              </button>
-            </div>
-
-            {activeView === 'input' && (
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <label className="text-xs font-semibold text-slate-600 whitespace-nowrap">Pilih Tanggal:</label>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-medium focus:ring-2 focus:outline-none bg-white"
-                />
-              </div>
-            )}
-          </div>
-
-          {activeView === 'input' ? (
-            <form onSubmit={handleSavePresensi} className={`bg-white/95 backdrop-blur-sm rounded-3xl p-6 border ${activeTheme.cardBorder} shadow-xs space-y-6`}>
-              <div className="flex items-center justify-between border-b pb-4">
-                <div>
-                  <h3 className="text-base font-bold text-slate-800">
-                    Presensi Kegiatan Tanggal: <span className={activeTheme.accentText}>{selectedDate}</span>
-                  </h3>
-                  <p className="text-xs text-slate-600 mt-0.5">Pilih status kehadiran untuk setiap anggota kelompok di bawah ini</p>
-                </div>
-                <button
-                  type="submit"
-                  className={`px-5 py-2.5 ${activeTheme.buttonPrimary} rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2`}
-                >
-                  <Check className="w-4 h-4" /> Simpan Presensi
-                </button>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-900">
-                      <th className="py-3 px-4">Nama Siswa</th>
-                      <th className="py-3 px-4">Kelas</th>
-                      <th className="py-3 px-4">Status Kehadiran</th>
-                      <th className="py-3 px-4">Catatan / Keterangan</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {members.map((m) => (
-                      <tr key={m.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="py-3.5 px-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-800 text-xs font-bold">
-                              {m.name.charAt(0)}
-                            </div>
-                            <div>
-                              <p className="font-bold text-slate-800 text-sm">{m.name}</p>
-                              <p className="text-[10px] text-slate-500">{m.role}</p>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td className="py-3.5 px-4">
-                          <span className={`px-2.5 py-1 rounded-md ${activeTheme.badgeBg} font-bold text-xs border`}>
-                            {m.kelas || 'VII-A'}
-                          </span>
-                        </td>
-
-                        <td className="py-3.5 px-4">
-                          <div className="flex flex-wrap gap-1.5">
-                            {['Hadir', 'Sakit', 'Izin', 'Alfa', 'Dispensasi'].map((status) => {
-                              const isSelected = (currentStatusMap[m.id] || '') === status;
-                              const cfg = STATUS_CONFIG[status];
-                              return (
-                                <button
-                                  type="button"
-                                  key={status}
-                                  onClick={() => handleStatusChange(m.id, status)}
-                                  className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all ${
-                                    isSelected ? cfg.active : cfg.color
-                                  }`}
-                                >
-                                  {status}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </td>
-
-                        <td className="py-3.5 px-4">
-                          <input
-                            type="text"
-                            value={notesMap[m.id] || ''}
-                            onChange={(e) => handleNoteChange(m.id, e.target.value)}
-                            placeholder="Contoh: Sakit demam / Tugas luar"
-                            className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:outline-none bg-slate-50"
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </form>
-          ) : (
-            <div className={`bg-white/95 backdrop-blur-sm rounded-3xl p-6 border ${activeTheme.cardBorder} shadow-xs space-y-4`}>
-              <div>
-                <h3 className="text-base font-bold text-slate-800">Rekapitulasi Kehadiran Siswa</h3>
-                <p className="text-xs text-slate-600">Ringkasan akumulasi seluruh status kehadiran selama periode PjBL</p>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-900">
-                      <th className="py-3 px-4">Nama Siswa</th>
-                      <th className="py-3 px-4 text-center">Kelas</th>
-                      <th className="py-3 px-4 text-center">Hadir</th>
-                      <th className="py-3 px-4 text-center">Sakit</th>
-                      <th className="py-3 px-4 text-center">Izin</th>
-                      <th className="py-3 px-4 text-center">Alfa</th>
-                      <th className="py-3 px-4 text-center">Dispensasi</th>
-                      <th className="py-3 px-4 text-center">Persentase</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {studentRecapMap.map((s) => {
-                      const totalDays = presensiList.length || 1;
-                      const pct = Math.round((s.hadir / totalDays) * 100);
-                      return (
-                        <tr key={s.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="py-3.5 px-4 font-bold text-slate-800 text-sm">{s.name}</td>
-                          <td className="py-3.5 px-4 text-center">
-                            <span className={`px-2 py-0.5 rounded ${activeTheme.badgeBg} font-bold text-xs`}>
-                              {s.kelas || 'VII-A'}
-                            </span>
-                          </td>
-                          <td className="py-3.5 px-4 text-center font-semibold text-emerald-700">{s.hadir}</td>
-                          <td className="py-3.5 px-4 text-center font-semibold text-amber-700">{s.sakit}</td>
-                          <td className="py-3.5 px-4 text-center font-semibold text-blue-700">{s.izin}</td>
-                          <td className="py-3.5 px-4 text-center font-semibold text-rose-700">{s.alfa}</td>
-                          <td className="py-3.5 px-4 text-center font-semibold text-purple-700">{s.dispensasi}</td>
-                          <td className="py-3.5 px-4 text-center">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${activeTheme.badgeBg} border`}>
-                              {pct}%
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    function StrukturTab({ activeTheme, members, setMembers, isStructureLocked, setIsStructureLocked, saveDataToLocalStorage, showToast }) {
-      const [roleMap, setRoleMap] = useState({});
-      const [showConfirmModal, setShowConfirmModal] = useState(false);
-
-      useEffect(() => {
-        const initialMap = {};
-        members.forEach(m => {
-          initialMap[m.id] = m.role || 'Anggota';
-        });
-        setRoleMap(initialMap);
-      }, [members]);
-
-      const handleRoleChange = (id, role) => {
-        if (isStructureLocked) return;
-        setRoleMap(prev => ({ ...prev, [id]: role }));
-      };
-
-      const handleConfirmSave = () => {
-        const updatedMembers = members.map(m => ({
-          ...m,
-          role: roleMap[m.id] || 'Anggota'
-        }));
-        setMembers(updatedMembers);
-        setIsStructureLocked(true);
-        saveDataToLocalStorage({ members: updatedMembers, isStructureLocked: true });
-        setShowConfirmModal(false);
-        showToast('Struktur Kelompok berhasil disimpan dan dikunci permanen!');
-      };
-
-      return (
-        <div className="space-y-6">
-          <div className={`bg-white/95 backdrop-blur-sm rounded-3xl p-6 border ${activeTheme.cardBorder} shadow-xs space-y-4`}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-              <div>
-                <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                  <ShieldCheck className={`w-5 h-5 ${activeTheme.accentText}`} />
-                  Pengaturan Struktur Kelompok
-                </h3>
-                <p className="text-xs text-slate-600 mt-0.5">
-                  Tentukan peran masing-masing anggota kelompok (Ketua Kelompok, Sekretaris, atau Anggota Kelompok).
-                </p>
-              </div>
-
-              {isStructureLocked && (
-                <span className="px-3 py-1.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 text-xs font-extrabold flex items-center gap-1.5 self-start sm:self-auto">
-                  <Lock className="w-3.5 h-3.5 text-rose-600" /> TERKUNCI PERMANEN
-                </span>
-              )}
-            </div>
-
-            {isStructureLocked && (
-              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
-                <span>
-                  Struktur kelompok ini telah disimpan dan dikunci secara permanen. Pengaturan posisi anggota tidak dapat diubah kembali dengan alasan apapun.
-                </span>
-              </div>
-            )}
-
-            <div className="divide-y divide-slate-100">
-              {members.map((m) => (
-                <div key={m.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 px-2 rounded-2xl transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 bg-white shrink-0 shadow-xs">
-                      <img src={m.avatar} alt={m.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-slate-800 text-sm">{m.name}</h4>
-                      <p className="text-[11px] text-slate-500 font-mono">Kelas {m.kelas} • NIS: {m.nis}</p>
-                    </div>
-                  </div>
-
-                  <div className="w-full sm:w-60">
-                    <select
-                      value={roleMap[m.id] || 'Anggota'}
-                      onChange={(e) => handleRoleChange(m.id, e.target.value)}
-                      disabled={isStructureLocked}
-                      className={`w-full px-3.5 py-2 rounded-xl border text-xs font-bold transition-all ${
-                        isStructureLocked
-                          ? 'bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed'
-                          : 'bg-white text-slate-800 border-slate-300 focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs'
-                      }`}
-                    >
-                      <option value="Anggota">Anggota Kelompok</option>
-                      <option value="Ketua Kelompok">Ketua Kelompok</option>
-                      <option value="Sekretaris">Sekretaris</option>
-                    </select>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {!isStructureLocked && (
-              <div className="pt-4 border-t border-slate-100 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmModal(true)}
-                  className={`px-6 py-2.5 ${activeTheme.buttonPrimary} rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2`}
-                >
-                  <Lock className="w-4 h-4" /> Simpan Struktur Kelompok
-                </button>
-              </div>
-            )}
-          </div>
-
-          {showConfirmModal && (
+          {/* Modal Schedule of All Rooms & Supervisors */}
+          {showAllRoomsModal && (
             <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 border border-slate-200">
-                <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center mx-auto border border-amber-300">
-                  <AlertCircle className="w-6 h-6 text-amber-600" />
-                </div>
-
-                <div className="text-center space-y-2">
-                  <h3 className="font-extrabold text-slate-900 text-base">Konfirmasi Kunci Struktur Kelompok</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Pengaturan Struktur Kelompok yang sudah disimpan <strong>TIDAK DAPAT DIUBAH LAGI</strong> dengan alasan apapun. Apakah Anda yakin data posisi anggota kelompok sudah benar dan ingin menyimpan?
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmModal(false)}
-                    className="py-2.5 px-4 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-bold transition-all"
-                  >
-                    Batal
+              <div className="bg-white rounded-3xl p-6 max-w-3xl w-full shadow-2xl space-y-4 border border-slate-200 max-h-[90vh] flex flex-col">
+                <div className="flex items-center justify-between border-b pb-3 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <Home className="w-5 h-5 text-indigo-700" />
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-base">Daftar Pembimbing & Pembagian Ruangan</h3>
+                      <p className="text-xs text-slate-500">Daftar lengkap alokasi ruangan dan pembimbing seluruh kelompok</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowAllRoomsModal(false)} className="text-slate-400 hover:text-slate-600">
+                    <X className="w-5 h-5" />
                   </button>
+                </div>
+
+                <div className="overflow-y-auto flex-1 space-y-3 pr-1">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-200 bg-slate-900 text-white font-bold">
+                          <th className="py-2.5 px-3">Nama Ruangan</th>
+                          <th className="py-2.5 px-3">Tempat</th>
+                          <th className="py-2.5 px-3">Pembimbing Kelompok</th>
+                          <th className="py-2.5 px-3">Kelompok</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {SUPERVISOR_ROOM_DATA.map((item, idx) => {
+                          const isCurrentRoom = item.groups.includes(currentGroup.rawGroup);
+                          return (
+                            <tr key={idx} className={isCurrentRoom ? 'bg-amber-50 font-semibold' : 'hover:bg-slate-50'}>
+                              <td className="py-3 px-3 font-bold text-slate-900">
+                                {item.roomName}
+                                {isCurrentRoom && <span className="ml-1.5 px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 text-[9px] font-black">Ruanganmu</span>}
+                              </td>
+                              <td className="py-3 px-3 text-slate-700">{item.location}</td>
+                              <td className="py-3 px-3 font-bold text-indigo-800">{item.pembimbing}</td>
+                              <td className="py-3 px-3 text-slate-600">
+                                {item.groups.map(g => `Kelompok ${g}`).join(', ')}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-2 shrink-0 border-t">
                   <button
-                    type="button"
-                    onClick={handleConfirmSave}
-                    className="py-2.5 px-4 rounded-xl bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5"
+                    onClick={() => setShowAllRoomsModal(false)}
+                    className="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-900 transition-all"
                   >
-                    <Lock className="w-3.5 h-3.5" /> Ya, Simpan & Kunci
+                    Tutup
                   </button>
                 </div>
               </div>
@@ -2465,7 +2621,7 @@
       );
     }
 
-    function LKPDTab({ activeTheme, lkpdList, setLkpdList, saveDataToLocalStorage, showToast }) {
+    function LKPDTab({ activeTheme, currentGroup, lkpdList, setLkpdList, saveDataToLocalStorage, showToast }) {
       const [pemateri, setPemateri] = useState('');
       const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
       const [lkpdNo, setLkpdNo] = useState(lkpdList.length + 1);
@@ -2534,6 +2690,18 @@
         const updated = [newEntry, ...lkpdList];
         setLkpdList(updated);
         saveDataToLocalStorage({ lkpdList: updated });
+
+        // Direct Sync to Google Apps Script Sheet
+        syncToGoogleAppsScript('syncLKPD', {
+          groupName: currentGroup.name,
+          no: newEntry.no,
+          title: newEntry.title,
+          pemateri: newEntry.pemateri,
+          date: newEntry.date,
+          docFilesCount: docFiles.length,
+          workFilesCount: workFiles.length
+        });
+
         showToast(`Dokumentasi LKPD ke-${lkpdNo} berhasil diunggah dan tersinkronisasi!`);
 
         setTitle('');
@@ -2548,7 +2716,27 @@
         const updated = lkpdList.filter(item => item.id !== id);
         setLkpdList(updated);
         saveDataToLocalStorage({ lkpdList: updated });
-        showToast('Berkas LKPD telah dihapus', 'info');
+        showToast('Seluruh berkas LKPD telah dihapus', 'info');
+      };
+
+      const handleDeleteSingleFile = (lkpdId, category, fileIdx) => {
+        const updated = lkpdList.map(item => {
+          if (item.id === lkpdId) {
+            const newFiles = item[category].filter((_, idx) => idx !== fileIdx);
+            return { ...item, [category]: newFiles };
+          }
+          return item;
+        });
+        setLkpdList(updated);
+        saveDataToLocalStorage({ lkpdList: updated });
+
+        if (previewModal && previewModal.id === lkpdId) {
+          setPreviewModal(prev => ({
+            ...prev,
+            [category]: prev[category].filter((_, idx) => idx !== fileIdx)
+          }));
+        }
+        showToast('Berkas foto berhasil dihapus dari LKPD', 'info');
       };
 
       return (
@@ -2782,7 +2970,7 @@
                         onClick={() => setPreviewModal(item)}
                         className={`px-3 py-1.5 ${activeTheme.buttonPrimary} rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs`}
                       >
-                        <Eye className="w-3.5 h-3.5" /> Pratinjau ({((item.docFiles?.length || 0) + (item.workFiles?.length || 0))} File)
+                        <Eye className="w-3.5 h-3.5" /> Kelola & Pratinjau ({((item.docFiles?.length || 0) + (item.workFiles?.length || 0))} File)
                       </button>
                     </div>
                   </div>
@@ -2815,10 +3003,22 @@
                       {previewModal.docFiles && previewModal.docFiles.length > 0 ? (
                         previewModal.docFiles.map((f, fIdx) => (
                           <div key={fIdx} className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 p-2 space-y-1">
-                            <div className="h-40 overflow-hidden rounded-xl bg-slate-200 flex items-center justify-center">
+                            <div className="h-40 overflow-hidden rounded-xl bg-slate-200 flex items-center justify-center relative">
                               <img src={f.url} alt={f.name} className="w-full h-full object-cover" />
                             </div>
-                            <p className="text-[10px] font-semibold text-slate-600 truncate px-1">{f.name}</p>
+                            <div className="flex items-center justify-between px-1 pt-1">
+                              <p className="text-[10px] font-semibold text-slate-600 truncate max-w-[110px]">{f.name}</p>
+                              <div className="flex items-center gap-2">
+                                <button onClick={() => downloadFile(f.url, f.name)} className="text-[10px] font-bold text-emerald-700 hover:underline">Unduh</button>
+                                <button 
+                                  onClick={() => handleDeleteSingleFile(previewModal.id, 'docFiles', fIdx)} 
+                                  className="text-[10px] font-bold text-rose-600 hover:text-rose-800 flex items-center gap-0.5 hover:underline"
+                                  title="Hapus foto ini"
+                                >
+                                  <Trash2 className="w-3 h-3" /> Hapus
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         ))
                       ) : (
@@ -2835,10 +3035,22 @@
                       {previewModal.workFiles && previewModal.workFiles.length > 0 ? (
                         previewModal.workFiles.map((f, fIdx) => (
                           <div key={fIdx} className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 p-2 space-y-1">
-                            <div className="h-40 overflow-hidden rounded-xl bg-slate-200 flex items-center justify-center">
+                            <div className="h-40 overflow-hidden rounded-xl bg-slate-200 flex items-center justify-center relative">
                               <img src={f.url} alt={f.name} className="w-full h-full object-cover" />
                             </div>
-                            <p className="text-[10px] font-semibold text-slate-600 truncate px-1">{f.name}</p>
+                            <div className="flex items-center justify-between px-1 pt-1">
+                              <p className="text-[10px] font-semibold text-slate-600 truncate max-w-[110px]">{f.name}</p>
+                              <div className="flex items-center gap-2">
+                                <button onClick={() => downloadFile(f.url, f.name)} className="text-[10px] font-bold text-emerald-700 hover:underline">Unduh</button>
+                                <button 
+                                  onClick={() => handleDeleteSingleFile(previewModal.id, 'workFiles', fIdx)} 
+                                  className="text-[10px] font-bold text-rose-600 hover:text-rose-800 flex items-center gap-0.5 hover:underline"
+                                  title="Hapus foto ini"
+                                >
+                                  <Trash2 className="w-3 h-3" /> Hapus
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         ))
                       ) : (
@@ -2869,7 +3081,7 @@
       );
     }
 
-    function JurnalTab({ activeTheme, jurnalList, setJurnalList, saveDataToLocalStorage, showToast }) {
+    function JurnalTab({ activeTheme, currentGroup, jurnalList, setJurnalList, saveDataToLocalStorage, showToast }) {
       const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
       const [timeStart, setTimeStart] = useState('08:00');
       const [timeEnd, setTimeEnd] = useState('10:00');
@@ -2893,7 +3105,18 @@
         const updated = [newObj, ...jurnalList];
         setJurnalList(updated);
         saveDataToLocalStorage({ jurnalList: updated });
-        showToast('Catatan Jurnal Kegiatan berhasil disimpan dan tersinkronisasi!');
+
+        // Direct Sync to Google Apps Script Sheet
+        syncToGoogleAppsScript('syncJurnal', {
+          groupName: currentGroup.name,
+          date: newObj.date,
+          timeStart: newObj.timeStart,
+          timeEnd: newObj.timeEnd,
+          pemateri: newObj.pemateri,
+          summary: newObj.summary
+        });
+
+        showToast('Catatan Jurnal Kegiatan berhasil disimpan & tersinkronisasi!');
 
         setPemateri('');
         setSummary('');
@@ -3489,7 +3712,7 @@
                       SMP YPU Bandung
                     </span>
                     <h1 className="text-xl sm:text-2xl font-black text-slate-900 mt-1">Portal PjBL Kokurikuler</h1>
-                    <p className="text-xs text-slate-600 mt-0.5">Sistem Presensi, LKPD & Jurnal Kegiatan Pra-Camping</p>
+                    <p className="text-xs text-slate-600 mt-0.5">Sistem Presensi, LKPD & Jurnal Sesi Perkemahan</p>
                   </div>
                 </div>
 
@@ -3789,6 +4012,7 @@
                   {activeTab === 'presensi' && (
                     <PresensiTab 
                       activeTheme={activeTheme}
+                      currentGroup={currentGroup}
                       members={members}
                       presensiList={presensiList}
                       setPresensiList={setPresensiList}
@@ -3800,6 +4024,7 @@
                   {activeTab === 'lkpd' && (
                     <LKPDTab 
                       activeTheme={activeTheme}
+                      currentGroup={currentGroup}
                       lkpdList={lkpdList}
                       setLkpdList={setLkpdList}
                       saveDataToLocalStorage={saveDataToLocalStorage}
@@ -3810,6 +4035,7 @@
                   {activeTab === 'jurnal' && (
                     <JurnalTab 
                       activeTheme={activeTheme}
+                      currentGroup={currentGroup}
                       jurnalList={jurnalList}
                       setJurnalList={setJurnalList}
                       saveDataToLocalStorage={saveDataToLocalStorage}
@@ -3846,4 +4072,27 @@
     root.render(<App />);
   </script>
 </body>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyB3ty_hDLilMsHmIL3zDfUKFBvhMDGI_q0",
+    authDomain: "ldks-smp-ypu-2026.firebaseapp.com",
+    projectId: "ldks-smp-ypu-2026",
+    storageBucket: "ldks-smp-ypu-2026.firebasestorage.app",
+    messagingSenderId: "663966002036",
+    appId: "1:663966002036:web:66afbccef6e2ecb7079a21",
+    measurementId: "G-VC5DEG6CXD"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 </html>
