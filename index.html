@@ -185,12 +185,10 @@
     const Cloud = makeIcon('<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>');
     const Download = makeIcon('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>');
     const Printer = makeIcon('<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>');
-    const Setti = makeIcon('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/>');
 
     const LOGO_URL = 'https://i.ibb.co.com/8gMSjY4F/IMG-20251203-114653.png';
-    const SESSION_KEY = 'pjbl_session_v1';
-    const SESSION_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours auto-session
 
+    // Download Single File Helper
     const downloadFile = (url, filename) => {
       const a = document.createElement('a');
       a.href = url;
@@ -200,6 +198,7 @@
       document.body.removeChild(a);
     };
 
+    // Printable Jurnal Report HTML Exporter
     const downloadJurnalReport = (data) => {
       const groupName = data.groupName || 'Kelompok';
       const dateStr = data.date || new Date().toISOString().split('T')[0];
@@ -207,7 +206,7 @@
 
       const membersRows = data.groupMembers ? data.groupMembers.map((m, idx) => {
         const rec = data.groupPresensiList?.[0]?.records?.find(r => r.studentId === m.id);
-        const status = rec ? rec.status : 'Hadir';
+        const status = rec && rec.status ? rec.status : 'Belum Diisi';
         return `
           <tr>
             <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center;">${idx + 1}</td>
@@ -283,7 +282,7 @@
     </tbody>
   </table>
 
-  <div class="section-title">3. Ceklis Pengumpulkan Dokumentasi & LKPD</div>
+  <div class="section-title">3. Ceklis Pengumpulan Dokumentasi & LKPD</div>
   <div class="checklist-box">
     <p><strong>${hasDoc ? '[ ✓ ] SELESAI UPLOAD' : '[   ] BELUM UPLOAD'}</strong> - 1. Dokumentasi Foto Pengerjaan (${lkpdEntry?.docFiles ? lkpdEntry.docFiles.length : 0} Berkas Foto)</p>
     <p><strong>${hasWork ? '[ ✓ ] SELESAI UPLOAD' : '[   ] BELUM UPLOAD'}</strong> - 2. Lembaran LKPD yang Dikerjakan (${lkpdEntry?.workFiles ? lkpdEntry.workFiles.length : 0} Berkas Foto)</p>
@@ -354,109 +353,109 @@
 
     const ALL_STUDENTS_MASTER = [
       { name: 'Abiyan Akbar Caisar Nurfattah', kelas: 'VII-B', group: 'Cakravarti 1', jk: 'L' },
-      { name: 'Adi Wistara', kelas: 'VIII-A', group: 'Arunika 1', jk: 'L' },
-      { name: 'Aditya Asmawi Yana', kelas: 'VIII-A', group: 'Ghananta 1', jk: 'L' },
-      { name: 'Aditya Saputra', kelas: 'IX-A', group: 'Bramanta 1', jk: 'L' },
-      { name: 'Ahmad Maulana', kelas: 'VII-A', group: 'Bramanta 1', jk: 'L' },
-      { name: 'Aira Putri Maharani', kelas: 'VII-A', group: 'Indivar 2', jk: 'P' },
-      { name: 'Aisha Hanes Afitdaeni', kelas: 'VII-B', group: 'Arunika 2', jk: 'P' },
-      { name: 'Albiansyah Hidayat', kelas: 'IX-A', group: 'Falana 1', jk: 'L' },
+      { name: 'Adi Wistara', kelas: 'VIII-A', group: 'Ghananta 1', jk: 'L' },
+      { name: 'Aditya Asmawi Yana', kelas: 'VIII-A', group: 'Bramanta 1', jk: 'L' },
+      { name: 'Aditya Saputra', kelas: 'IX-A', group: 'Cakravarti 1', jk: 'L' },
+      { name: 'Ahmad Maulana', kelas: 'VII-A', group: 'Hiranya 1', jk: 'L' },
+      { name: 'Aira Putri Maharani', kelas: 'VII-A', group: 'Cakravarti 2', jk: 'P' },
+      { name: 'Aisha Hanes Afitdaeni', kelas: 'VII-B', group: 'Dirandra 2', jk: 'P' },
+      { name: 'Albiansyah Hidayat', kelas: 'IX-A', group: 'Arunika 1', jk: 'L' },
       { name: 'Aliya Febriyanti', kelas: 'VIII-A', group: 'Elysia 2', jk: 'P' },
       { name: 'Alsya Nazma Novita', kelas: 'IX-B', group: 'Cakravarti 2', jk: 'P' },
       { name: 'Angelica Putri', kelas: 'VII-A', group: 'Bramanta 2', jk: 'P' },
       { name: 'Anisa Putri Fauziah', kelas: 'IX-B', group: 'Arunika 2', jk: 'P' },
-      { name: 'Annisa Safaria Nur Jannah', kelas: 'VII-B', group: 'Ghananta 2', jk: 'P' },
-      { name: 'Apriliani', kelas: 'VII-A', group: 'Indivar 2', jk: 'P' },
-      { name: 'Aqila Maharani', kelas: 'VII-B', group: 'Dirandra 2', jk: 'P' },
-      { name: 'Aqilla Putri Oktavia', kelas: 'VII-B', group: 'Elysia 2', jk: 'P' },
-      { name: 'Aqiysya Bilqis Nur Agnetta', kelas: 'VII-B', group: 'Bramanta 2', jk: 'P' },
-      { name: 'Ardan Fauzy Pratama', kelas: 'VII-B', group: 'Arunika 1', jk: 'L' },
-      { name: 'Arif Aditya Latif', kelas: 'IX-B', group: 'Ghananta 1', jk: 'L' },
-      { name: 'Arina Rahmawati', kelas: 'IX-A', group: 'Ghananta 2', jk: 'P' },
+      { name: 'Annisa Safaria Nur Jannah', kelas: 'VII-B', group: 'Arunika 2', jk: 'P' },
+      { name: 'Apriliani', kelas: 'VII-A', group: 'Cakravarti 2', jk: 'P' },
+      { name: 'Aqila Maharani', kelas: 'VII-B', group: 'Falana 2', jk: 'P' },
+      { name: 'Aqilla Putri Oktavia', kelas: 'VII-B', group: 'Indivar 2', jk: 'P' },
+      { name: 'Aqiysya Bilqis Nur Agnetta', kelas: 'VII-B', group: 'Falana 2', jk: 'P' },
+      { name: 'Ardan Fauzy Pratama', kelas: 'VII-B', group: 'Hiranya 1', jk: 'L' },
+      { name: 'Arif Aditya Latif', kelas: 'IX-B', group: 'Bramanta 1', jk: 'L' },
+      { name: 'Arina Rahmawati', kelas: 'IX-A', group: 'Hiranya 2', jk: 'P' },
       { name: 'Arya Nugraha', kelas: 'IX-B', group: 'Elysia 1', jk: 'L' },
-      { name: 'Aryanti Dwi Anggraeni', kelas: 'IX-A', group: 'Arunika 2', jk: 'P' },
-      { name: 'Aska', kelas: 'VII-B', group: 'Elysia 1', jk: 'L' },
-      { name: 'Asri Tri Wahyuni', kelas: 'VII-B', group: 'Ghananta 2', jk: 'P' },
+      { name: 'Aryanti Dwi Anggraeni', kelas: 'IX-A', group: 'Bramanta 2', jk: 'P' },
+      { name: 'Aska', kelas: 'VII-B', group: 'Dirandra 1', jk: 'L' },
+      { name: 'Asri Tri Wahyuni', kelas: 'VII-B', group: 'Bramanta 2', jk: 'P' },
       { name: 'Ayu Aulia Shinta', kelas: 'VIII-A', group: 'Dirandra 2', jk: 'P' },
-      { name: 'Azahra Tri Lestari', kelas: 'VII-A', group: 'Hiranya 2', jk: 'P' },
-      { name: 'Azda Ananda Khoerunnisa', kelas: 'VII-A', group: 'Cakravarti 2', jk: 'P' },
-      { name: 'Azka Aldric Wiguna', kelas: 'VII-A', group: 'Hiranya 1', jk: 'L' },
-      { name: 'Berlian Bushaynah Putri Kurman', kelas: 'IX-B', group: 'Bramanta 2', jk: 'P' },
-      { name: 'Brayen Aditya Pratama', kelas: 'VIII-A', group: 'Falana 1', jk: 'L' },
-      { name: 'Cahaya Ananda Tri Evita', kelas: 'IX-B', group: 'Ghananta 2', jk: 'P' },
+      { name: 'Azahra Tri Lestari', kelas: 'VII-A', group: 'Indivar 2', jk: 'P' },
+      { name: 'Azda Ananda Khoerunnisa', kelas: 'VII-A', group: 'Dirandra 2', jk: 'P' },
+      { name: 'Azka Aldric Wiguna', kelas: 'VII-A', group: 'Jayananda 1', jk: 'L' },
+      { name: 'Berlian Bushaynah Putri K.', kelas: 'IX-B', group: 'Jayananda 2', jk: 'P' },
+      { name: 'Brayen Aditya Pratama', kelas: 'VIII-A', group: 'Arunika 1', jk: 'L' },
+      { name: 'Cahaya Ananda Tri Evita', kelas: 'IX-B', group: 'Hiranya 2', jk: 'P' },
       { name: 'Defa Raffiandra Ginanjar', kelas: 'VII-A', group: 'Dirandra 1', jk: 'L' },
       { name: 'Delia Nur Azizah', kelas: 'IX-B', group: 'Dirandra 2', jk: 'P' },
-      { name: 'Destri Zaumi Ananda', kelas: 'IX-A', group: 'Elysia 2', jk: 'P' },
-      { name: 'Dexel Gabriel', kelas: 'VIII-A', group: 'Hiranya 1', jk: 'L' },
-      { name: 'Dezhar Zhibral Idris', kelas: 'VIII-A', group: 'Bramanta 1', jk: 'L' },
+      { name: 'Destri Zaumi Ananda', kelas: 'IX-A', group: 'Indivar 2', jk: 'P' },
+      { name: 'Dexel Gabriel', kelas: 'VIII-A', group: 'Jayananda 1', jk: 'L' },
+      { name: 'Dezhar Zhibral Idris', kelas: 'VIII-A', group: 'Falana 1', jk: 'L' },
       { name: 'Dhika Pratama', kelas: 'VII-A', group: 'Cakravarti 1', jk: 'L' },
       { name: 'Didan Khoirul Ramadhan', kelas: 'IX-B', group: 'Dirandra 1', jk: 'L' },
-      { name: 'Dika Arjun Saputra', kelas: 'IX-A', group: 'Elysia 1', jk: 'L' },
-      { name: 'Dika Hermawan', kelas: 'VII-B', group: 'Bramanta 1', jk: 'L' },
+      { name: 'Dika Arjun Saputra', kelas: 'IX-A', group: 'Jayananda 1', jk: 'L' },
+      { name: 'Dika Hermawan', kelas: 'VII-B', group: 'Ghananta 1', jk: 'L' },
       { name: 'Elang Surya Prasetya', kelas: 'VIII-A', group: 'Cakravarti 1', jk: 'L' },
       { name: 'Fanny Anggraeny', kelas: 'VIII-A', group: 'Falana 2', jk: 'P' },
-      { name: 'Farid Alfa Rizky', kelas: 'VII-A', group: 'Falana 1', jk: 'L' },
+      { name: 'Farid Alfa Rizky', kelas: 'VII-A', group: 'Arunika 1', jk: 'L' },
       { name: 'Fatir Muhammad Azka', kelas: 'VII-A', group: 'Indivar 1', jk: 'L' },
       { name: 'Fauzan Ciryll Ibrahim', kelas: 'VIII-A', group: 'Elysia 1', jk: 'L' },
       { name: 'Fawaz Ghaly Mughist Mukhlis', kelas: 'IX-B', group: 'Indivar 1', jk: 'L' },
       { name: 'Felice Andini Gumilar', kelas: 'VIII-A', group: 'Bramanta 2', jk: 'P' },
       { name: 'Fika Friciliani', kelas: 'VIII-A', group: 'Hiranya 2', jk: 'P' },
-      { name: 'Gabriel Catur Purnama', kelas: 'VII-A', group: 'Arunika 1', jk: 'L' },
-      { name: 'Ibams Arsyalo', kelas: 'IX-B', group: 'Falana 1', jk: 'L' },
+      { name: 'Gabriel Catur Purnama', kelas: 'VII-A', group: 'Falana 1', jk: 'L' },
+      { name: 'Ibams Arsyalo', kelas: 'IX-B', group: 'Arunika 1', jk: 'L' },
       { name: 'Ilyas Zaki', kelas: 'IX-A', group: 'Dirandra 1', jk: 'L' },
-      { name: 'Intan Kharisma', kelas: 'VII-B', group: 'Elysia 2', jk: 'P' },
+      { name: 'Intan Kharisma', kelas: 'VII-B', group: 'Arunika 2', jk: 'P' },
       { name: 'Ismail Dwi Andhika', kelas: 'VIII-A', group: 'Indivar 1', jk: 'L' },
       { name: 'Johan Permana', kelas: 'IX-B', group: 'Indivar 1', jk: 'L' },
-      { name: 'Kania Aiysah', kelas: 'IX-B', group: 'Hiranya 2', jk: 'P' },
-      { name: 'Kanzza Dwi Lestari', kelas: 'VII-A', group: 'Arunika 2', jk: 'P' },
+      { name: 'Kania Aiysah', kelas: 'IX-B', group: 'Jayananda 2', jk: 'P' },
+      { name: 'Kanzza Dwi Lestari', kelas: 'VII-A', group: 'Hiranya 2', jk: 'P' },
       { name: 'Kartika Susandi', kelas: 'IX-B', group: 'Indivar 2', jk: 'P' },
-      { name: 'Keyla Amora Reppie', kelas: 'IX-A', group: 'Falana 2', jk: 'P' },
-      { name: 'Khoerul Fahry Bashary', kelas: 'VII-B', group: 'Ghananta 1', jk: 'L' },
-      { name: 'Mei Syah Nugrah Amelia', kelas: 'VIII-A', group: 'Arunika 2', jk: 'P' },
-      { name: 'Milzan Ibrahim Movic', kelas: 'IX-A', group: 'Arunika 1', jk: 'L' },
-      { name: 'Mira Nurfadilah', kelas: 'IX-A', group: 'Dirandra 2', jk: 'P' },
+      { name: 'Keyla Amora Reppie', kelas: 'IX-A', group: 'Ghananta 2', jk: 'P' },
+      { name: 'Khoerul Fahry Bashary', kelas: 'VII-B', group: 'Bramanta 1', jk: 'L' },
+      { name: 'M. Arya Duta Wijaya', kelas: 'VIII-A', group: 'Falana 1', jk: 'L' },
+      { name: 'Mei Syah Nugrah Amelia', kelas: 'IX-A', group: 'Arunika 2', jk: 'P' },
+      { name: 'Milzan Ibrahim Movic', kelas: 'IX-A', group: 'Ghananta 1', jk: 'L' },
+      { name: 'Mira Nurfadilah', kelas: 'VIII-A', group: 'Cakravarti 2', jk: 'P' },
       { name: 'Muhamad Farhan Algivari', kelas: 'VIII-A', group: 'Dirandra 1', jk: 'L' },
       { name: 'Muhamad Najran Saputra', kelas: 'VIII-A', group: 'Indivar 1', jk: 'L' },
-      { name: 'Muhamad Najrin Saputra', kelas: 'VIII-A', group: 'Dirandra 1', jk: 'L' },
-      { name: 'Muhamad Noval Ardian', kelas: 'IX-B', group: 'Hiranya 1', jk: 'L' },
-      { name: 'Muhammad Arya Duta Wijaya', kelas: 'IX-A', group: 'Bramanta 1', jk: 'L' },
-      { name: 'Muhammad Bilal Maulana', kelas: 'VII-B', group: 'Hiranya 1', jk: 'L' },
+      { name: 'Muhamad Najrin Saputra', kelas: 'IX-B', group: 'Hiranya 1', jk: 'L' },
+      { name: 'Muhamad Noval Ardian', kelas: 'IX-A', group: 'Jayananda 1', jk: 'L' },
+      { name: 'Muhammad Bilal Maulana', kelas: 'VII-B', group: 'Jayananda 1', jk: 'L' },
       { name: 'Muhammad Dandi', kelas: 'IX-A', group: 'Cakravarti 1', jk: 'L' },
-      { name: 'Muhammad Iqbal Nur Hafizh', kelas: 'VII-B', group: 'Dirandra 1', jk: 'L' },
-      { name: 'Nakeila Syakirah Zahra', kelas: 'VII-A', group: 'Hiranya 2', jk: 'P' },
-      { name: 'Nasya Nur Afni', kelas: 'IX-A', group: 'Elysia 2', jk: 'P' },
+      { name: 'Muhammad Iqbal Nur Hafizh', kelas: 'VII-B', group: 'Elysia 1', jk: 'L' },
+      { name: 'Nakeila Syakirah Zahra', kelas: 'VII-A', group: 'Elysia 2', jk: 'P' },
+      { name: 'Nasya Nur Afni', kelas: 'IX-A', group: 'Ghananta 2', jk: 'P' },
       { name: 'Naurra Fadhilla Idris', kelas: 'IX-A', group: 'Indivar 2', jk: 'P' },
-      { name: 'Naysyira Nurhadiani', kelas: 'IX-B', group: 'Bramanta 2', jk: 'P' },
+      { name: 'Naysyira Nurhadiani', kelas: 'IX-B', group: 'Arunika 2', jk: 'P' },
       { name: 'Nicholas Novicky Sandy', kelas: 'IX-A', group: 'Hiranya 1', jk: 'L' },
-      { name: 'Nizam Muhamad Rozak Fadilah', kelas: 'IX-B', group: 'Cakravarti 1', jk: 'L' },
-      { name: 'Novandra Raihan Putra', kelas: 'VIII-A', group: 'Hiranya 1', jk: 'L' },
+      { name: 'Nizam M. Rozak Fadilah', kelas: 'IX-B', group: 'Hiranya 1', jk: 'L' },
+      { name: 'Novandra Raihan Putra', kelas: 'VIII-A', group: 'Jayananda 1', jk: 'L' },
       { name: 'Novia Angelia', kelas: 'IX-B', group: 'Ghananta 2', jk: 'P' },
       { name: 'Nurhalimah', kelas: 'IX-A', group: 'Dirandra 2', jk: 'P' },
-      { name: 'Prama Pramuadji Sidik', kelas: 'VII-B', group: 'Falana 1', jk: 'L' },
-      { name: 'Princess Anindya Purnama', kelas: 'IX-B', group: 'Cakravarti 2', jk: 'P' },
-      { name: 'Putri Suci Lestari', kelas: 'VII-A', group: 'Falana 2', jk: 'P' },
-      { name: 'Rani Aprilyanti', kelas: 'VII-A', group: 'Cakravarti 2', jk: 'P' },
-      { name: 'Rava Aprilian', kelas: 'VIII-A', group: 'Falana 1', jk: 'L' },
-      { name: 'Rayyan Ziqri', kelas: 'VII-B', group: 'Bramanta 1', jk: 'L' },
-      { name: 'Reski Ditiya Putra', kelas: 'VII-A', group: 'Arunika 1', jk: 'L' },
-      { name: 'Reva Lestari', kelas: 'VII-B', group: 'Dirandra 2', jk: 'P' },
-      { name: 'Rifqy Rivanka Faisal', kelas: 'IX-A', group: 'Arunika 1', jk: 'L' },
+      { name: 'Prama Pramuadji Sidik', kelas: 'VII-B', group: 'Arunika 1', jk: 'L' },
+      { name: 'Princess Anindya Purnama', kelas: 'IX-B', group: 'Dirandra 2', jk: 'P' },
+      { name: 'Putri Suci Lestari', kelas: 'VII-A', group: 'Ghananta 2', jk: 'P' },
+      { name: 'Rani Aprilyanti', kelas: 'VII-A', group: 'Ghananta 2', jk: 'P' },
+      { name: 'Rava Aprilian', kelas: 'VIII-A', group: 'Arunika 1', jk: 'L' },
+      { name: 'Rayyan Ziqri', kelas: 'VII-B', group: 'Falana 1', jk: 'L' },
+      { name: 'Reski Ditiya Putra', kelas: 'VII-A', group: 'Ghananta 1', jk: 'L' },
+      { name: 'Reva Lestari', kelas: 'VII-B', group: 'Hiranya 2', jk: 'P' },
+      { name: 'Rifqy Rivanka Faisal', kelas: 'IX-A', group: 'Ghananta 1', jk: 'L' },
       { name: 'Rivaldhy Ramadhan Putra', kelas: 'VIII-A', group: 'Elysia 1', jk: 'L' },
-      { name: 'Rizha Putra Pratama', kelas: 'VIII-A', group: 'Ghananta 1', jk: 'L' },
-      { name: 'Rizqiya Azila Putri', kelas: 'VII-B', group: 'Cakravarti 2', jk: 'P' },
-      { name: 'Rizqy Avrilian Nugraha', kelas: 'IX-A', group: 'Ghananta 1', jk: 'L' },
+      { name: 'Rizha Putra Pratama', kelas: 'VIII-A', group: 'Bramanta 1', jk: 'L' },
+      { name: 'Rizqiya Azila Putri', kelas: 'VII-B', group: 'Elysia 2', jk: 'P' },
+      { name: 'Rizqy Avrilian Nugraha', kelas: 'IX-A', group: 'Falana 1', jk: 'L' },
       { name: 'Roro Defara Rohmania Hasyari', kelas: 'VIII-A', group: 'Cakravarti 2', jk: 'P' },
       { name: 'Rustandi Dzulkarnaen', kelas: 'VII-B', group: 'Indivar 1', jk: 'L' },
       { name: 'Safa Mutiara Safira', kelas: 'IX-B', group: 'Falana 2', jk: 'P' },
-      { name: 'Safa Putri Maharani', kelas: 'IX-A', group: 'Hiranya 2', jk: 'P' },
-      { name: 'Safengi Listiana Suhada', kelas: 'VIII-A', group: 'Ghananta 2', jk: 'P' },
+      { name: 'Safa Putri Maharani', kelas: 'IX-A', group: 'Elysia 2', jk: 'P' },
+      { name: 'Safengi Listiana Suhada', kelas: 'VIII-A', group: 'Jayananda 2', jk: 'P' },
       { name: 'Salsabila Azahra', kelas: 'IX-B', group: 'Elysia 2', jk: 'P' },
       { name: 'Satria Ramadhani', kelas: 'VII-A', group: 'Elysia 1', jk: 'L' },
-      { name: 'Sintia Septiani', kelas: 'IX-B', group: 'Arunika 2', jk: 'P' },
-      { name: 'Siti Nurlela', kelas: 'VIII-A', group: 'Indivar 2', jk: 'P' },
+      { name: 'Sintia Septiani', kelas: 'IX-B', group: 'Jayananda 2', jk: 'P' },
+      { name: 'Siti Nurlela', kelas: 'VIII-A', group: 'Ghananta 2', jk: 'P' },
       { name: 'Suci Fatharani Putri', kelas: 'IX-A', group: 'Bramanta 2', jk: 'P' },
-      { name: 'Sultan November Anugrah Putra', kelas: 'VII-A', group: 'Ghananta 1', jk: 'L' },
-      { name: 'Syaqilah Roffi Yulianti', kelas: 'VII-A', group: 'Falana 2', jk: 'P' },
+      { name: 'Sultan November A.P.', kelas: 'VII-A', group: 'Bramanta 1', jk: 'L' },
+      { name: 'Syaqilah Roffi Yulianti', kelas: 'VII-A', group: 'Jayananda 2', jk: 'P' },
       { name: 'Vera Indah Lestari', kelas: 'IX-A', group: 'Hiranya 2', jk: 'P' },
       { name: 'Violina Angel', kelas: 'IX-B', group: 'Falana 2', jk: 'P' }
     ];
@@ -483,7 +482,7 @@
           kelas: item.kelas,
           jk: item.jk || 'L',
           nis: `2024${String(index + 1).padStart(2, '0')}`,
-          role: 'Anggota Kelompok',
+          role: 'Anggota',
           avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(item.name)}`
         };
       });
@@ -660,6 +659,25 @@
         accentText: 'text-fuchsia-700',
         subHeaderBg: 'bg-fuchsia-950',
         accentRing: 'focus:ring-fuchsia-500'
+      },
+      'Jayananda': {
+        name: 'Cyan Teal (Fresh Oceanic Cyan)',
+        bodyBg: 'bg-teal-50/70',
+        sidebarBg: 'bg-gradient-to-b from-teal-950 via-cyan-950 to-slate-950',
+        sidebarBorder: 'border-teal-800/60',
+        activeNav: 'bg-teal-600/80 text-white shadow-lg shadow-teal-950/40 border-teal-400/50',
+        activeNavBadge: 'bg-cyan-200 text-teal-950',
+        inactiveNav: 'text-teal-100/70 hover:bg-teal-900/50 hover:text-white',
+        heroGradient: 'from-teal-800 via-cyan-800 to-teal-950',
+        heroBorder: 'border-teal-600',
+        heroHighlight: 'text-cyan-200',
+        heroTag: 'bg-teal-600/50 border-teal-300/40 text-teal-100',
+        badgeBg: 'bg-teal-100 text-teal-900 border-teal-200',
+        cardBorder: 'border-teal-100 hover:border-teal-300',
+        buttonPrimary: 'bg-teal-600 hover:bg-teal-700 text-white shadow-teal-600/20',
+        accentText: 'text-teal-800',
+        subHeaderBg: 'bg-teal-950',
+        accentRing: 'focus:ring-teal-500'
       }
     };
 
@@ -1055,15 +1073,19 @@
           const initialMems = getInitialMembersForGroup(g.rawGroup);
           
           let members = initialMems;
-          let isStructureLocked = false;
-          let presensiList = [];
+          let presensiList = [
+            {
+              id: 'p-1',
+              date: new Date().toISOString().split('T')[0],
+              records: initialMems.map(m => ({ studentId: m.id, name: m.name, status: '', note: '' }))
+            }
+          ];
           let lkpdList = [];
           let jurnalList = [];
 
           if (cloudDataMap[g.id]) {
             const cData = cloudDataMap[g.id];
             if (cData.members && cData.members.length > 0) members = cData.members;
-            if (cData.isStructureLocked !== undefined) isStructureLocked = cData.isStructureLocked;
             if (cData.presensiList) presensiList = cData.presensiList;
             if (cData.lkpdList) lkpdList = cData.lkpdList;
             if (cData.jurnalList) jurnalList = cData.jurnalList;
@@ -1071,7 +1093,6 @@
             try {
               const parsed = JSON.parse(savedLocal);
               if (parsed.members && parsed.members.length > 0) members = parsed.members;
-              if (parsed.isStructureLocked !== undefined) isStructureLocked = parsed.isStructureLocked;
               if (parsed.presensiList) presensiList = parsed.presensiList;
               if (parsed.lkpdList) lkpdList = parsed.lkpdList;
               if (parsed.jurnalList) jurnalList = parsed.jurnalList;
@@ -1083,7 +1104,6 @@
           return {
             group: g,
             members,
-            isStructureLocked,
             presensiList,
             lkpdList,
             jurnalList
@@ -1094,7 +1114,6 @@
       const totalStudents = allData.reduce((acc, curr) => acc + curr.members.length, 0);
       const totalLkpdUploaded = allData.reduce((acc, curr) => acc + curr.lkpdList.length, 0);
       const totalJurnalEntries = allData.reduce((acc, curr) => acc + curr.jurnalList.length, 0);
-      const totalLockedStructures = allData.filter(d => d.isStructureLocked).length;
 
       const allLkpdFlat = useMemo(() => {
         const list = [];
@@ -1200,7 +1219,6 @@
               <nav className="p-4 space-y-1.5">
                 {[
                   { id: 'overview', label: 'Ringkasan Kelompok', icon: Users, badge: `${DEFAULT_GROUPS.length} Regu` },
-                  { id: 'struktur', label: 'Struktur Kelompok', icon: Setti, badge: `${totalLockedStructures}/18 Dikunci` },
                   { id: 'presensi', label: 'Presensi Harian', icon: UserCheck, badge: 'Per Tanggal' },
                   { id: 'rekap-kehadiran', label: 'Rekap Total Kehadiran', icon: ShieldCheck, badge: 'Statistik' },
                   { id: 'lkpd', label: 'LKPD Uploaded', icon: FileText, badge: `${totalLkpdUploaded} File` },
@@ -1259,7 +1277,6 @@
                 <div>
                   <h1 className="text-base sm:text-lg font-black text-slate-900 capitalize flex items-center gap-2">
                     {adminTab === 'overview' && 'Ringkasan Seluruh Kelompok'}
-                    {adminTab === 'struktur' && 'Struktur Kelompok Seluruh Regu'}
                     {adminTab === 'presensi' && 'Presensi Harian Kelompok'}
                     {adminTab === 'rekap-kehadiran' && 'Rekap Total Kehadiran Seluruh Regu'}
                     {adminTab === 'lkpd' && 'Arsip Seluruh LKPD Terupload'}
@@ -1322,6 +1339,62 @@
                 </div>
               </div>
 
+              <div className="bg-white rounded-3xl p-4 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                  <Filter className="w-4 h-4 text-slate-500" /> Filter & Pencarian Data:
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                  <div className="relative flex-1 sm:w-40">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                    <input
+                      type="date"
+                      value={filterDate}
+                      onChange={(e) => setFilterDate(e.target.value)}
+                      title="Filter berdasarkan Tanggal Kegiatan"
+                      className="w-full pl-8 pr-2 py-1.5 rounded-xl border border-slate-300 text-xs font-semibold bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 cursor-pointer"
+                    />
+                  </div>
+
+                  {filterDate && (
+                    <button
+                      onClick={() => setFilterDate('')}
+                      className="px-2.5 py-1.5 rounded-xl bg-rose-100 text-rose-700 hover:bg-rose-200 text-xs font-bold transition-all"
+                      title="Reset Filter Tanggal"
+                    >
+                      Reset Tanggal
+                    </button>
+                  )}
+
+                  <div className="relative flex-1 sm:w-44">
+                    <Filter className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                    <select
+                      value={filterGroup}
+                      onChange={(e) => setFilterGroup(e.target.value)}
+                      className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 appearance-none cursor-pointer"
+                    >
+                      <option value="ALL">Semua Kelompok ({DEFAULT_GROUPS.length})</option>
+                      {DEFAULT_GROUPS.map(g => (
+                        <option key={g.id} value={g.id}>{g.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {(adminTab === 'lkpd' || adminTab === 'jurnal') && (
+                    <div className="relative flex-1 sm:w-48">
+                      <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Cari kata kunci..."
+                        className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-300 text-xs bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {adminTab === 'overview' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {allData.map(d => {
@@ -1344,12 +1417,6 @@
                             <span className="font-bold text-slate-700">{gTheme.name.split(' ')[0]}</span>
                           </p>
                           <p className="flex justify-between">
-                            <span>Status Struktur:</span>
-                            <span className={`font-bold ${d.isStructureLocked ? 'text-emerald-700' : 'text-amber-600'}`}>
-                              {d.isStructureLocked ? '🔒 Dikunci' : '🔓 Belum Dikunci'}
-                            </span>
-                          </p>
-                          <p className="flex justify-between">
                             <span>Jumlah Murid:</span>
                             <span className="font-bold text-slate-900">{d.members.length} Siswa</span>
                           </p>
@@ -1368,77 +1435,6 @@
                 </div>
               )}
 
-              {adminTab === 'struktur' && (
-                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-6">
-                  <div className="border-b pb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div>
-                      <h3 className="font-extrabold text-slate-900 text-base flex items-center gap-2">
-                        <Setti className="w-5 h-5 text-indigo-700" />
-                        Struktur Organisasi Seluruh Kelompok (18 Regu)
-                      </h3>
-                      <p className="text-xs text-slate-500 mt-0.5">Pemantauan penunjukan Ketua Kelompok dan Sekretaris di setiap regu</p>
-                    </div>
-                    <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold border border-amber-300">
-                      Total Dikunci: {totalLockedStructures} dari 18 Regu
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {allData.map(d => {
-                      const ketua = d.members.find(m => m.role === 'Ketua Kelompok');
-                      const sekretaris = d.members.find(m => m.role === 'Sekretaris');
-
-                      return (
-                        <div key={d.group.id} className="p-5 rounded-3xl border border-slate-200 bg-slate-50/60 hover:border-slate-300 transition-all space-y-4">
-                          <div className="flex items-center justify-between border-b pb-3">
-                            <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                              <Users className="w-4 h-4 text-indigo-600" /> {d.group.name}
-                            </h4>
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                              d.isStructureLocked 
-                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' 
-                                : 'bg-amber-100 text-amber-800 border border-amber-300'
-                            }`}>
-                              {d.isStructureLocked ? '🔒 Dikunci' : '🔓 Belum Dikunci'}
-                            </span>
-                          </div>
-
-                          <div className="space-y-3">
-                            <div className="p-3 bg-white rounded-2xl border border-slate-200 space-y-1">
-                              <span className="text-[10px] font-black uppercase text-indigo-800 tracking-wider flex items-center gap-1">
-                                <Award className="w-3.5 h-3.5 text-indigo-600" /> Ketua Kelompok:
-                              </span>
-                              {ketua ? (
-                                <p className="font-extrabold text-xs text-slate-900">{ketua.name} <span className="text-slate-500 font-normal">({ketua.kelas})</span></p>
-                              ) : (
-                                <p className="text-xs text-slate-400 italic font-medium">Belum ditentukan</p>
-                              )}
-                            </div>
-
-                            <div className="p-3 bg-white rounded-2xl border border-slate-200 space-y-1">
-                              <span className="text-[10px] font-black uppercase text-teal-800 tracking-wider flex items-center gap-1">
-                                <FileText className="w-3.5 h-3.5 text-teal-600" /> Sekretaris:
-                              </span>
-                              {sekretaris ? (
-                                <p className="font-extrabold text-xs text-slate-900">{sekretaris.name} <span className="text-slate-500 font-normal">({sekretaris.kelas})</span></p>
-                              ) : (
-                                <p className="text-xs text-slate-400 italic font-medium">Belum ditentukan</p>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="pt-1 text-[11px] text-slate-500 flex justify-between items-center font-medium">
-                            <span>Anggota Lainnya:</span>
-                            <span className="font-bold text-slate-800">{d.members.filter(m => m.role === 'Anggota Kelompok').length} Murid</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* ... Other admin tabs (presensi, rekap-kehadiran, lkpd, rekap-lkpd, jurnal) ... */}
               {adminTab === 'presensi' && (
                 <div className="space-y-6">
                   {filterDate && (
@@ -1488,7 +1484,7 @@
                                 <tbody className="divide-y divide-slate-100 text-xs">
                                   {d.members.map(m => {
                                     const targetRecord = displayedPresensi[0]?.records?.find(r => r.studentId === m.id);
-                                    const status = targetRecord ? targetRecord.status : 'Belum diisi';
+                                    const status = targetRecord && targetRecord.status ? targetRecord.status : 'Belum diisi';
                                     const note = targetRecord ? targetRecord.note : '-';
                                     return (
                                       <tr key={m.id} className="hover:bg-slate-50">
@@ -1529,7 +1525,7 @@
                     <div>
                       <h3 className="font-extrabold text-slate-900 text-base flex items-center gap-2">
                         <ShieldCheck className="w-5 h-5 text-indigo-700" />
-                        Rekapitulasi Kehadiran & Visualisasi Diagram (18 Kelompok)
+                        Rekapitulasi Kehadiran & Visualisasi Diagram ({DEFAULT_GROUPS.length} Kelompok)
                       </h3>
                       <p className="text-xs text-slate-500 mt-0.5">Statistik kehadiran per regu, kelas, dan jenis kelamin (Laki-laki / Perempuan)</p>
                     </div>
@@ -1589,6 +1585,9 @@
                       <h3 className="font-bold text-slate-800 text-base">Arsip Seluruh Berkas LKPD Terupload</h3>
                       <p className="text-xs text-slate-500 mt-0.5">Daftar lembar kerja siswa yang dikumpulkan oleh seluruh kelompok</p>
                     </div>
+                    <span className="px-3 py-1 bg-slate-100 text-slate-900 rounded-full text-xs font-bold border border-slate-300">
+                      Total: {allLkpdFlat.length} File {filterDate ? `(Filter Tanggal: ${filterDate})` : ''}
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1633,7 +1632,7 @@
               {adminTab === 'rekap-lkpd' && (
                 <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
                   <div className="border-b pb-4">
-                    <h3 className="font-bold text-slate-900 text-base">Matriks Rekapitulasi Pengumpulkan LKPD Per Kelompok</h3>
+                    <h3 className="font-bold text-slate-900 text-base">Matriks Rekapitulasi Pengumpulan LKPD Per Kelompok</h3>
                     <p className="text-xs text-slate-500 mt-0.5">Pemantauan kelompok yang sudah maupun belum mengunggah dokumentasi LKPD</p>
                   </div>
 
@@ -1695,6 +1694,9 @@
                       <h3 className="font-bold text-slate-800 text-base">Arsip Jurnal Kegiatan & Cetak Laporan PDF</h3>
                       <p className="text-xs text-slate-500 mt-0.5">Daftar catatan harian materi dan diskusi perkemahan dari seluruh kelompok</p>
                     </div>
+                    <span className="px-3 py-1 bg-amber-100 text-amber-900 rounded-full text-xs font-bold border border-amber-300">
+                      Total: {allJurnalFlat.length} Catatan Jurnal
+                    </span>
                   </div>
 
                   <div className="space-y-4">
@@ -1740,6 +1742,87 @@
               )}
             </div>
           </main>
+
+          {previewModal && (
+            <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl p-6 max-w-2xl w-full shadow-2xl space-y-4 border border-slate-200 max-h-[90vh] flex flex-col">
+                <div className="flex items-center justify-between border-b pb-3 shrink-0">
+                  <div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-800 rounded-md">
+                      LKPD #{previewModal.no} - {previewModal.groupName}
+                    </span>
+                    <h3 className="font-bold text-slate-800 text-base mt-1">{previewModal.title}</h3>
+                  </div>
+                  <button onClick={() => setPreviewModal(null)} className="text-slate-400 hover:text-slate-600">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="overflow-y-auto flex-1 space-y-4 pr-1">
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <Users className="w-4 h-4 text-slate-600" /> Dokumentasi Pengerjaan ({previewModal.docFiles ? previewModal.docFiles.length : 0} Berkas)
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {previewModal.docFiles && previewModal.docFiles.length > 0 ? (
+                        previewModal.docFiles.map((f, fIdx) => (
+                          <div key={fIdx} className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 p-2 space-y-1">
+                            <div className="h-40 overflow-hidden rounded-xl bg-slate-200 flex items-center justify-center">
+                              <img src={f.url} alt={f.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex items-center justify-between px-1">
+                              <p className="text-[10px] font-semibold text-slate-600 truncate">{f.name}</p>
+                              <button onClick={() => downloadFile(f.url, f.name)} className="text-[10px] font-bold text-emerald-700 underline">Unduh</button>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-xs text-slate-400 italic col-span-full">Tidak ada foto dokumentasi pengerjaan.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 pt-2 border-t border-slate-100">
+                    <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <FileText className="w-4 h-4 text-slate-600" /> LKPD yang Dikerjakan ({previewModal.workFiles ? previewModal.workFiles.length : 0} Berkas)
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {previewModal.workFiles && previewModal.workFiles.length > 0 ? (
+                        previewModal.workFiles.map((f, fIdx) => (
+                          <div key={fIdx} className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 p-2 space-y-1">
+                            <div className="h-40 overflow-hidden rounded-xl bg-slate-200 flex items-center justify-center">
+                              <img src={f.url} alt={f.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex items-center justify-between px-1">
+                              <p className="text-[10px] font-semibold text-slate-600 truncate">{f.name}</p>
+                              <button onClick={() => downloadFile(f.url, f.name)} className="text-[10px] font-bold text-emerald-700 underline">Unduh</button>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-xs text-slate-400 italic col-span-full">Tidak ada berkas LKPD pengerjaan.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-slate-600 space-y-1 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                    <p><span className="font-semibold">Pemateri:</span> {previewModal.pemateri}</p>
+                    <p><span className="font-semibold">Tanggal:</span> {previewModal.date}</p>
+                    <p><span className="font-semibold">Catatan:</span> {previewModal.notes}</p>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-2 shrink-0 border-t">
+                  <button
+                    onClick={() => setPreviewModal(null)}
+                    className="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-900 transition-all"
+                  >
+                    Tutup Pratinjau
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
@@ -1749,6 +1832,7 @@
       const [newMemberName, setNewMemberName] = useState('');
       const [newMemberKelas, setNewMemberKelas] = useState('VII-A');
       const [newMemberNis, setNewMemberNis] = useState('');
+      const [newMemberRole, setNewMemberRole] = useState('Anggota');
 
       const totalPresensiRecorded = presensiList.length;
       const totalHadirCount = presensiList.reduce((acc, curr) => {
@@ -1756,9 +1840,6 @@
       }, 0);
       const totalPossiblePresensi = (members.length * totalPresensiRecorded) || 1;
       const attendanceRate = Math.round((totalHadirCount / totalPossiblePresensi) * 100) || 100;
-
-      const ketua = members.find(m => m.role === 'Ketua Kelompok');
-      const sekretaris = members.find(m => m.role === 'Sekretaris');
 
       const handleAddMember = (e) => {
         e.preventDefault();
@@ -1769,7 +1850,7 @@
           name: newMemberName.trim(),
           kelas: newMemberKelas,
           nis: newMemberNis.trim() || `2024${Math.floor(10 + Math.random() * 90)}`,
-          role: 'Anggota Kelompok',
+          role: newMemberRole,
           avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(newMemberName)}`
         };
 
@@ -1800,7 +1881,7 @@
                 Selamat Datang, <span className={activeTheme.heroHighlight}>{currentGroup.name}</span>!
               </h2>
               <p className="text-white/90 text-xs sm:text-sm leading-relaxed">
-                Kelola struktur organisasi kelompok, presensi harian, dokumentasi pengisian LKPD, serta jurnal harian sesi perkemahan.
+                Kelola presensi harian, dokumentasi pengisian LKPD, jurnal kegiatan lapangan, serta pelajari pemetaan Mata Pelajaran Terintegrasi dan Dimensi Profil Lulusan secara terstruktur.
               </p>
             </div>
 
@@ -1817,9 +1898,7 @@
               <div>
                 <p className="text-xs text-slate-500 font-semibold">Total Anggota</p>
                 <p className="text-2xl font-extrabold text-slate-900">{members.length} Siswa</p>
-                <p className="text-[10px] text-indigo-800 font-bold mt-0.5">
-                  Ketua: {ketua ? ketua.name : 'Belum Ditentukan'}
-                </p>
+                <p className="text-[10px] text-slate-500 font-medium mt-0.5">Semua Peran: Anggota</p>
               </div>
             </div>
 
@@ -1830,7 +1909,7 @@
               <div>
                 <p className="text-xs text-slate-500 font-semibold">Tingkat Kehadiran</p>
                 <p className="text-2xl font-extrabold text-slate-900">{attendanceRate}%</p>
-                <p className="text-[10px] text-teal-700 font-medium mt-0.5">{totalPresensiRecorded} Sesi Presensi</p>
+                <p className="text-[10px] text-teal-700 font-medium mt-0.5">{totalPresensiRecorded} Sesi Rekam Presensi</p>
               </div>
             </div>
 
@@ -1841,7 +1920,7 @@
               <div>
                 <p className="text-xs text-slate-500 font-semibold">LKPD Terupload</p>
                 <p className="text-2xl font-extrabold text-slate-900">{lkpdList.length} Berkas</p>
-                <p className="text-[10px] text-lime-800 font-medium mt-0.5">Dokumentasi & Lembar Kerja</p>
+                <p className="text-[10px] text-lime-800 font-medium mt-0.5">Multi-file dokumentasi</p>
               </div>
             </div>
 
@@ -1852,7 +1931,7 @@
               <div>
                 <p className="text-xs text-slate-500 font-semibold">Jurnal Kegiatan</p>
                 <p className="text-2xl font-extrabold text-slate-900">{jurnalList.length} Catatan</p>
-                <p className="text-[10px] text-amber-700 font-medium mt-0.5">Resume harian</p>
+                <p className="text-[10px] text-amber-700 font-medium mt-0.5">Resume pemateri harian</p>
               </div>
             </div>
           </div>
@@ -1878,7 +1957,7 @@
             {showAddMember && (
               <form onSubmit={handleAddMember} className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-4">
                 <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Input Anggota Baru</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-slate-700 mb-1">Nama Lengkap Siswa</label>
                     <input
@@ -1914,6 +1993,20 @@
                       placeholder="202406"
                       className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:outline-none bg-white"
                     />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Peran / Role</label>
+                    <select
+                      value={newMemberRole}
+                      onChange={(e) => setNewMemberRole(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:outline-none bg-white"
+                    >
+                      <option value="Anggota">Anggota</option>
+                      <option value="Ketua Kelompok">Ketua Kelompok</option>
+                      <option value="Sekretaris">Sekretaris</option>
+                      <option value="Bendahara">Bendahara</option>
+                      <option value="Dokumentator">Dokumentator</option>
+                    </select>
                   </div>
                 </div>
                 <div className="flex justify-end gap-2">
@@ -1958,196 +2051,13 @@
                     </span>
                   </div>
                   
-                  <span className={`mt-3 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide border ${
-                    m.role === 'Ketua Kelompok' 
-                      ? 'bg-indigo-100 text-indigo-900 border-indigo-300 font-black' 
-                      : m.role === 'Sekretaris'
-                      ? 'bg-teal-100 text-teal-900 border-teal-300 font-bold'
-                      : 'bg-slate-100 text-slate-700 border-slate-200'
-                  }`}>
-                    {m.role || 'Anggota Kelompok'}
+                  <span className="mt-3 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 tracking-wide">
+                    {m.role}
                   </span>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      );
-    }
-
-    function StrukturKelompokTab({ currentGroup, activeTheme, members, setMembers, isStructureLocked, setIsStructureLocked, saveDataToLocalStorage, showToast }) {
-      const [tempRoles, setTempRoles] = useState({});
-      const [showConfirmModal, setShowConfirmModal] = useState(false);
-
-      useEffect(() => {
-        const map = {};
-        members.forEach(m => {
-          map[m.id] = m.role || 'Anggota Kelompok';
-        });
-        setTempRoles(map);
-      }, [members]);
-
-      const handleRoleSelect = (studentId, selectedRole) => {
-        if (isStructureLocked) return;
-        setTempRoles(prev => ({ ...prev, [studentId]: selectedRole }));
-      };
-
-      const handleOpenConfirmModal = (e) => {
-        e.preventDefault();
-        if (isStructureLocked) return;
-        setShowConfirmModal(true);
-      };
-
-      const handleConfirmSaveAndLock = () => {
-        const updatedMembers = members.map(m => ({
-          ...m,
-          role: tempRoles[m.id] || 'Anggota Kelompok'
-        }));
-
-        setMembers(updatedMembers);
-        setIsStructureLocked(true);
-        saveDataToLocalStorage({ members: updatedMembers, isStructureLocked: true });
-        setShowConfirmModal(false);
-        showToast('Struktur organisasi kelompok berhasil disimpan dan dikunci!');
-      };
-
-      return (
-        <div className="space-y-6">
-          <div className={`bg-white/95 backdrop-blur-sm rounded-3xl p-6 border ${activeTheme.cardBorder} shadow-xs space-y-6`}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-bold text-slate-900">
-                    Struktur Organisasi Kelompok {currentGroup.name}
-                  </h3>
-                  {isStructureLocked ? (
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black border border-emerald-300 flex items-center gap-1">
-                      <Lock className="w-3 h-3 text-emerald-700" /> TERKUNCI PERMANEN
-                    </span>
-                  ) : (
-                    <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black border border-amber-300">
-                      🔓 BELUM DIKUNCI
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Tentukan Ketua Kelompok, Sekretaris, dan Anggota Kelompok. Setelah disimpan, struktur akan dikunci secara otomatis.
-                </p>
-              </div>
-
-              {!isStructureLocked && (
-                <button
-                  onClick={handleOpenConfirmModal}
-                  className={`px-5 py-2.5 ${activeTheme.buttonPrimary} rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2 self-start sm:self-auto`}
-                >
-                  <Lock className="w-4 h-4" /> Simpan & Kunci Struktur
-                </button>
-              )}
-            </div>
-
-            {isStructureLocked && (
-              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                <span>
-                  Struktur organisasi kelompok ini telah disahkan dan dikunci. Data telah tersinkronkan dengan dashboard pembimbing/admin.
-                </span>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              {members.map((m) => {
-                const currentRole = tempRoles[m.id] || 'Anggota Kelompok';
-
-                return (
-                  <div 
-                    key={m.id}
-                    className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
-                      isStructureLocked 
-                        ? 'bg-slate-50/50 border-slate-200' 
-                        : 'bg-white border-slate-200 hover:border-slate-300 shadow-xs'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-300 shrink-0 bg-slate-100">
-                        <img src={m.avatar} alt={m.name} className="w-full h-full object-cover" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-slate-900 text-sm">{m.name}</h4>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] font-bold text-slate-500">Kelas {m.kelas}</span>
-                          <span className="text-[10px] text-slate-400 font-mono">NIS: {m.nis}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="w-full sm:w-64 shrink-0">
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 sm:hidden">
-                        Peran dalam Kelompok:
-                      </label>
-                      <select
-                        value={currentRole}
-                        disabled={isStructureLocked}
-                        onChange={(e) => handleRoleSelect(m.id, e.target.value)}
-                        className={`w-full px-3 py-2 rounded-xl text-xs font-bold border transition-all focus:outline-none focus:ring-2 ${
-                          isStructureLocked 
-                            ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' 
-                            : 'bg-white border-slate-300 text-slate-900 cursor-pointer shadow-xs'
-                        }`}
-                      >
-                        <option value="Anggota Kelompok">Anggota Kelompok</option>
-                        <option value="Ketua Kelompok">Ketua Kelompok</option>
-                        <option value="Sekretaris">Sekretaris</option>
-                      </select>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {!isStructureLocked && (
-              <div className="flex justify-end pt-2 border-t border-slate-100">
-                <button
-                  onClick={handleOpenConfirmModal}
-                  className={`px-6 py-2.5 ${activeTheme.buttonPrimary} rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2`}
-                >
-                  <Lock className="w-4 h-4" /> Simpan & Kunci Struktur
-                </button>
-              </div>
-            )}
-          </div>
-
-          {showConfirmModal && (
-            <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 border border-slate-200 text-center">
-                <div className="w-14 h-14 bg-amber-100 text-amber-800 rounded-3xl flex items-center justify-center mx-auto">
-                  <AlertCircle className="w-8 h-8 text-amber-600" />
-                </div>
-
-                <div>
-                  <h3 className="font-extrabold text-slate-900 text-base">Konfirmasi Penguncian Struktur Kelompok</h3>
-                  <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
-                    Apakah Anda sudah yakin dengan susunan struktur organisasi kelompok ini? 
-                    <br/><strong className="text-rose-700">Setelah disimpan, posisi/struktur tidak dapat diubah kembali.</strong>
-                  </p>
-                </div>
-
-                <div className="flex justify-center gap-3 pt-2">
-                  <button
-                    onClick={() => setShowConfirmModal(false)}
-                    className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-all"
-                  >
-                    Batal & Periksa Lagi
-                  </button>
-                  <button
-                    onClick={handleConfirmSaveAndLock}
-                    className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-md transition-all"
-                  >
-                    Ya, Yakin & Kunci
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       );
     }
@@ -2188,17 +2098,10 @@
 
       const handleSavePresensi = (e) => {
         e.preventDefault();
-        
-        const unselected = members.filter(m => !currentStatusMap[m.id] || currentStatusMap[m.id] === 'Belum diisi');
-        if (unselected.length > 0) {
-          showToast('Harap pilih status presensi untuk semua siswa terlebih dahulu!', 'error');
-          return;
-        }
-
         const records = members.map(m => ({
           studentId: m.id,
           name: m.name,
-          status: currentStatusMap[m.id],
+          status: currentStatusMap[m.id] || '',
           note: notesMap[m.id] || ''
         }));
 
@@ -2332,7 +2235,7 @@
                         <td className="py-3.5 px-4">
                           <div className="flex flex-wrap gap-1.5">
                             {['Hadir', 'Sakit', 'Izin', 'Alfa', 'Dispensasi'].map((status) => {
-                              const isSelected = currentStatusMap[m.id] === status;
+                              const isSelected = (currentStatusMap[m.id] || '') === status;
                               const cfg = STATUS_CONFIG[status];
                               return (
                                 <button
@@ -2413,6 +2316,148 @@
                     })}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function StrukturTab({ activeTheme, members, setMembers, isStructureLocked, setIsStructureLocked, saveDataToLocalStorage, showToast }) {
+      const [roleMap, setRoleMap] = useState({});
+      const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+      useEffect(() => {
+        const initialMap = {};
+        members.forEach(m => {
+          initialMap[m.id] = m.role || 'Anggota';
+        });
+        setRoleMap(initialMap);
+      }, [members]);
+
+      const handleRoleChange = (id, role) => {
+        if (isStructureLocked) return;
+        setRoleMap(prev => ({ ...prev, [id]: role }));
+      };
+
+      const handleConfirmSave = () => {
+        const updatedMembers = members.map(m => ({
+          ...m,
+          role: roleMap[m.id] || 'Anggota'
+        }));
+        setMembers(updatedMembers);
+        setIsStructureLocked(true);
+        saveDataToLocalStorage({ members: updatedMembers, isStructureLocked: true });
+        setShowConfirmModal(false);
+        showToast('Struktur Kelompok berhasil disimpan dan dikunci permanen!');
+      };
+
+      return (
+        <div className="space-y-6">
+          <div className={`bg-white/95 backdrop-blur-sm rounded-3xl p-6 border ${activeTheme.cardBorder} shadow-xs space-y-4`}>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
+                  <ShieldCheck className={`w-5 h-5 ${activeTheme.accentText}`} />
+                  Pengaturan Struktur Kelompok
+                </h3>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Tentukan peran masing-masing anggota kelompok (Ketua Kelompok, Sekretaris, atau Anggota Kelompok).
+                </p>
+              </div>
+
+              {isStructureLocked && (
+                <span className="px-3 py-1.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 text-xs font-extrabold flex items-center gap-1.5 self-start sm:self-auto">
+                  <Lock className="w-3.5 h-3.5 text-rose-600" /> TERKUNCI PERMANEN
+                </span>
+              )}
+            </div>
+
+            {isStructureLocked && (
+              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+                <span>
+                  Struktur kelompok ini telah disimpan dan dikunci secara permanen. Pengaturan posisi anggota tidak dapat diubah kembali dengan alasan apapun.
+                </span>
+              </div>
+            )}
+
+            <div className="divide-y divide-slate-100">
+              {members.map((m) => (
+                <div key={m.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 px-2 rounded-2xl transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 bg-white shrink-0 shadow-xs">
+                      <img src={m.avatar} alt={m.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-800 text-sm">{m.name}</h4>
+                      <p className="text-[11px] text-slate-500 font-mono">Kelas {m.kelas} • NIS: {m.nis}</p>
+                    </div>
+                  </div>
+
+                  <div className="w-full sm:w-60">
+                    <select
+                      value={roleMap[m.id] || 'Anggota'}
+                      onChange={(e) => handleRoleChange(m.id, e.target.value)}
+                      disabled={isStructureLocked}
+                      className={`w-full px-3.5 py-2 rounded-xl border text-xs font-bold transition-all ${
+                        isStructureLocked
+                          ? 'bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed'
+                          : 'bg-white text-slate-800 border-slate-300 focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs'
+                      }`}
+                    >
+                      <option value="Anggota">Anggota Kelompok</option>
+                      <option value="Ketua Kelompok">Ketua Kelompok</option>
+                      <option value="Sekretaris">Sekretaris</option>
+                    </select>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {!isStructureLocked && (
+              <div className="pt-4 border-t border-slate-100 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmModal(true)}
+                  className={`px-6 py-2.5 ${activeTheme.buttonPrimary} rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2`}
+                >
+                  <Lock className="w-4 h-4" /> Simpan Struktur Kelompok
+                </button>
+              </div>
+            )}
+          </div>
+
+          {showConfirmModal && (
+            <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 border border-slate-200">
+                <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center mx-auto border border-amber-300">
+                  <AlertCircle className="w-6 h-6 text-amber-600" />
+                </div>
+
+                <div className="text-center space-y-2">
+                  <h3 className="font-extrabold text-slate-900 text-base">Konfirmasi Kunci Struktur Kelompok</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Pengaturan Struktur Kelompok yang sudah disimpan <strong>TIDAK DAPAT DIUBAH LAGI</strong> dengan alasan apapun. Apakah Anda yakin data posisi anggota kelompok sudah benar dan ingin menyimpan?
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmModal(false)}
+                    className="py-2.5 px-4 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-bold transition-all"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmSave}
+                    className="py-2.5 px-4 rounded-xl bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5"
+                  >
+                    <Lock className="w-3.5 h-3.5" /> Ya, Simpan & Kunci
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -3204,10 +3249,10 @@
       const [passcodeError, setPasscodeError] = useState('');
 
       const [members, setMembers] = useState([]);
-      const [isStructureLocked, setIsStructureLocked] = useState(false);
       const [presensiList, setPresensiList] = useState([]);
       const [lkpdList, setLkpdList] = useState([]);
       const [jurnalList, setJurnalList] = useState([]);
+      const [isStructureLocked, setIsStructureLocked] = useState(false);
 
       const [cloudStatus, setCloudStatus] = useState('connected');
       const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
@@ -3230,29 +3275,6 @@
         generateCaptcha();
       }, [loginRole]);
 
-      // Restoration of active 2-hour session on page refresh
-      useEffect(() => {
-        try {
-          const rawSession = localStorage.getItem(SESSION_KEY);
-          if (rawSession) {
-            const sess = JSON.parse(rawSession);
-            const now = Date.now();
-            if (sess && sess.loginTime && (now - sess.loginTime < SESSION_TTL_MS)) {
-              setUserRole(sess.role);
-              if (sess.role === 'group' && sess.groupId) {
-                const matchG = DEFAULT_GROUPS.find(g => g.id === sess.groupId);
-                if (matchG) setCurrentGroup(matchG);
-              }
-              setIsLoggedIn(true);
-            } else {
-              localStorage.removeItem(SESSION_KEY);
-            }
-          }
-        } catch (e) {
-          console.warn("Session check exception:", e);
-        }
-      }, []);
-
       const groupUserPassMap = useMemo(() => {
         const map = {};
         DEFAULT_GROUPS.forEach(g => {
@@ -3261,6 +3283,10 @@
             password: cred,
             group: g
           };
+          if (cred.startsWith('dirandra_')) {
+            const alias = cred.replace('dirandra_', 'dinandra_');
+            map[alias] = { password: alias, group: g };
+          }
         });
         return map;
       }, []);
@@ -3269,7 +3295,13 @@
         if (!currentGroup) return;
 
         const initialMems = getInitialMembersForGroup(currentGroup.rawGroup);
-        const initialPres = [];
+        const initialPres = [
+          {
+            id: 'p-1',
+            date: new Date().toISOString().split('T')[0],
+            records: initialMems.map(m => ({ studentId: m.id, name: m.name, status: '', note: '' }))
+          }
+        ];
 
         const gKey = `pjbl_data_${currentGroup.id}`;
         const savedLocal = localStorage.getItem(gKey);
@@ -3277,19 +3309,19 @@
           try {
             const parsed = JSON.parse(savedLocal);
             setMembers(parsed.members && parsed.members.length > 0 ? parsed.members : initialMems);
-            setIsStructureLocked(parsed.isStructureLocked || false);
             setPresensiList(parsed.presensiList || initialPres);
             setLkpdList(parsed.lkpdList || []);
             setJurnalList(parsed.jurnalList || []);
+            setIsStructureLocked(parsed.isStructureLocked || false);
           } catch(e) {
             console.error(e);
           }
         } else {
           setMembers(initialMems);
-          setIsStructureLocked(false);
           setPresensiList(initialPres);
           setLkpdList([]);
           setJurnalList([]);
+          setIsStructureLocked(false);
         }
 
         const fb = window.FirebaseApp;
@@ -3300,10 +3332,10 @@
               if (docSnap.exists()) {
                 const data = docSnap.data();
                 setMembers(data.members || initialMems);
-                setIsStructureLocked(data.isStructureLocked || false);
                 setPresensiList(data.presensiList || initialPres);
                 setLkpdList(data.lkpdList || []);
                 setJurnalList(data.jurnalList || []);
+                setIsStructureLocked(data.isStructureLocked || false);
                 localStorage.setItem(gKey, JSON.stringify(data));
                 setCloudStatus('connected');
               }
@@ -3324,10 +3356,10 @@
         const gKey = `pjbl_data_${currentGroup.id}`;
         const currentPayload = {
           members,
-          isStructureLocked,
           presensiList,
           lkpdList,
           jurnalList,
+          isStructureLocked,
           ...updatedData
         };
 
@@ -3361,7 +3393,6 @@
       const handleLogout = () => {
         setIsLoggedIn(false);
         setUserRole(null);
-        localStorage.removeItem(SESSION_KEY);
         setUsernameInput('');
         setPasswordInput('');
         generateCaptcha();
@@ -3387,12 +3418,6 @@
             setPasscodeError('');
             setUsernameInput('');
             setPasswordInput('');
-
-            localStorage.setItem(SESSION_KEY, JSON.stringify({
-              role: 'admin',
-              loginTime: Date.now()
-            }));
-
             showToast('Berhasil masuk sebagai Administrator Portal!');
           } else {
             setPasscodeError('Username atau Password Administrator tidak valid.');
@@ -3408,13 +3433,6 @@
             setPasscodeError('');
             setUsernameInput('');
             setPasswordInput('');
-
-            localStorage.setItem(SESSION_KEY, JSON.stringify({
-              role: 'group',
-              groupId: match.group.id,
-              loginTime: Date.now()
-            }));
-
             showToast(`Berhasil masuk sebagai ${match.group.name}`);
           } else {
             setPasscodeError('Username atau Password kelompok tidak cocok.');
@@ -3471,7 +3489,7 @@
                       SMP YPU Bandung
                     </span>
                     <h1 className="text-xl sm:text-2xl font-black text-slate-900 mt-1">Portal PjBL Kokurikuler</h1>
-                    <p className="text-xs text-slate-600 mt-0.5">Sistem Presensi, LKPD & Jurnal Sesi Pra-Camping</p>
+                    <p className="text-xs text-slate-600 mt-0.5">Sistem Presensi, LKPD & Jurnal Kegiatan Pra-Camping</p>
                   </div>
                 </div>
 
@@ -3627,7 +3645,7 @@
                   <nav className="p-4 space-y-1.5">
                     {[
                       { id: 'home', label: 'Home', icon: Home, badge: 'Dashboard' },
-                      { id: 'struktur', label: 'Struktur Kelompok', icon: Setti, badge: isStructureLocked ? '🔒 Dikunci' : 'Belum' },
+                      { id: 'struktur', label: 'Struktur Kelompok', icon: ShieldCheck, badge: isStructureLocked ? 'Terkunci' : 'Atur' },
                       { id: 'presensi', label: 'Presensi', icon: UserCheck, badge: `${members.length} Siswa` },
                       { id: 'lkpd', label: 'Upload LKPD', icon: FileText, badge: `${lkpdList.length} Berkas` },
                       { id: 'jurnal', label: 'Jurnal Kegiatan', icon: BookOpen, badge: `${jurnalList.length} Catatan` },
@@ -3699,7 +3717,7 @@
                     <div>
                       <h1 className="text-lg sm:text-xl font-bold text-slate-900 capitalize flex items-center gap-2">
                         {activeTab === 'home' && <Home className={`w-5 h-5 ${activeTheme.accentText}`} />}
-                        {activeTab === 'struktur' && <Setti className={`w-5 h-5 ${activeTheme.accentText}`} />}
+                        {activeTab === 'struktur' && <ShieldCheck className={`w-5 h-5 ${activeTheme.accentText}`} />}
                         {activeTab === 'presensi' && <UserCheck className={`w-5 h-5 ${activeTheme.accentText}`} />}
                         {activeTab === 'lkpd' && <FileText className={`w-5 h-5 ${activeTheme.accentText}`} />}
                         {activeTab === 'jurnal' && <BookOpen className={`w-5 h-5 ${activeTheme.accentText}`} />}
@@ -3708,7 +3726,7 @@
                         {activeTab === 'home' 
                           ? 'Dashboard Kelompok' 
                           : activeTab === 'struktur'
-                          ? 'Struktur Organisasi Kelompok'
+                          ? 'Struktur Kelompok'
                           : activeTab === 'lkpd' 
                           ? 'Upload & Rekap LKPD' 
                           : activeTab === 'mapel' 
@@ -3757,8 +3775,7 @@
                   )}
 
                   {activeTab === 'struktur' && (
-                    <StrukturKelompokTab 
-                      currentGroup={currentGroup}
+                    <StrukturTab
                       activeTheme={activeTheme}
                       members={members}
                       setMembers={setMembers}
