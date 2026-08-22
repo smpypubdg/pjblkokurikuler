@@ -1,0 +1,3462 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Home,
+  Users,
+  CheckCircle2,
+  FileText,
+  BookOpen,
+  Award,
+  LogOut,
+  LogIn,
+  Calendar,
+  Clock,
+  ShieldCheck,
+  UserCheck,
+  Download,
+  Eye,
+  AlertCircle,
+  Filter,
+  Check,
+  X,
+  UploadCloud,
+  Menu,
+  Compass,
+  GraduationCap,
+  Building2,
+  Trash2,
+  Image,
+  RefreshCw,
+  BarChart3,
+  PieChart,
+  Printer,
+  Grid,
+  FileSpreadsheet,
+  Plus
+} from 'lucide-react';
+
+const INSTRUCTORS = [
+  "Drs. Dadang Kosasih",
+  "R. Arnis Amalia Y., S.Pd.",
+  "Nia Rosania, S.S.",
+  "Sulaeman, S.Pd.",
+  "Siti Rosidah, S.Pd., Gr.",
+  "Pauji Saleh, S.Sos.",
+  "Ihsan M. Syahid, S.Pd.",
+  "Fasya Fauziyah, S.Pd.",
+  "M. Yoga Permana, S.Pd., Gr.",
+  "Januar Try Putra R., S.Pd., Gr.",
+  "Reyna Agustina",
+  "Tim Kepramukaan SMP YPU Bandung"
+];
+
+const MASTER_STUDENT_DATABASE = [
+  // Arunika 1
+  { nisn: "0119728730", name: "Albiansyah Hidayat", kelas: "IX-A", kelompok: "Arunika 1", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0133620098", name: "Brayen Aditya Pratama", kelas: "VIII-A", kelompok: "Arunika 1", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0137312064", name: "Farid Alfa Rizky", kelas: "VII-A", kelompok: "Arunika 1", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0114900706", name: "Ibams Arsyalo", kelas: "IX-B", kelompok: "Arunika 1", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0136673432", name: "Prama Pramuadji Sidik", kelas: "VII-B", kelompok: "Arunika 1", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0114810756", name: "Rava Aprilian", kelas: "VIII-A", kelompok: "Arunika 1", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+
+  // Arunika 2
+  { nisn: "0123887901", name: "Anisa Putri Fauziah", kelas: "IX-B", kelompok: "Arunika 2", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "3137489511", name: "Annisa Safaria Nur Jannah", kelas: "VII-B", kelompok: "Arunika 2", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0124010765", name: "Intan Kharisma", kelas: "VII-B", kelompok: "Arunika 2", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0112416852", name: "Mei Syah Nugrah Amelia", kelas: "IX-A", kelompok: "Arunika 2", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "3103510872", name: "Naysyira Nurhadiani", kelas: "IX-B", kelompok: "Arunika 2", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+
+  // Bramanta 1
+  { nisn: "3133096037", name: "Aditya Asmawi Yana", kelas: "VIII-A", kelompok: "Bramanta 1", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "0121169140", name: "Arif Aditya Latif", kelas: "IX-B", kelompok: "Bramanta 1", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "0134674504", name: "Khoerul Fahry Bashary", kelas: "VII-B", kelompok: "Bramanta 1", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "3129186425", name: "Rizha Putra Pratama", kelas: "VIII-A", kelompok: "Bramanta 1", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "0148338065", name: "Sultan November A.P.", kelas: "VII-A", kelompok: "Bramanta 1", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+
+  // Bramanta 2
+  { nisn: "3138286769", name: "Angelica Putri", kelas: "VII-A", kelompok: "Bramanta 2", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "0112002141", name: "Aryanti Dwi Anggraeni", kelas: "IX-A", kelompok: "Bramanta 2", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "0158800726", name: "Asri Tri Wahyuni", kelas: "VII-B", kelompok: "Bramanta 2", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "0125394094", name: "Felice Andini Gumilar", kelas: "VIII-A", kelompok: "Bramanta 2", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "0114020693", name: "Suci Fatharani Putri", kelas: "IX-A", kelompok: "Bramanta 2", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+
+  // Carumita 1
+  { nisn: "0136811241", name: "Abiyan Akbar Caisar Nurfattah", kelas: "VII-B", kelompok: "Carumita 1", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "0114995116", name: "Aditya Saputra", kelas: "IX-A", kelompok: "Carumita 1", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "3137592830", name: "Dhika Pratama", kelas: "VII-A", kelompok: "Carumita 1", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "3125116540", name: "Elang Surya Prasetya", kelas: "VIII-A", kelompok: "Carumita 1", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "0113088822", name: "Muhammad Dandi", kelas: "IX-A", kelompok: "Carumita 1", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+
+  // Carumita 2
+  { nisn: "3135478631", name: "Aira Putri Maharani", kelas: "VII-A", kelompok: "Carumita 2", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "0112155652", name: "Alsya Nazma Novita", kelas: "IX-B", kelompok: "Carumita 2", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "3141045838", name: "Apriliani", kelas: "VII-A", kelompok: "Carumita 2", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "0111459270", name: "Mira Nurfadilah", kelas: "VIII-A", kelompok: "Carumita 2", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "3121091176", name: "Roro Defara Rohmania Hasyari", kelas: "VIII-A", kelompok: "Carumita 2", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+
+  // Dirandra 1
+  { nisn: "3131852458", name: "Aska", kelas: "VII-B", kelompok: "Dirandra 1", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "3136675907", name: "Defa Raffiandra Ginanjar", kelas: "VII-A", kelompok: "Dirandra 1", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0115274757", name: "Didan Khoirul Ramadhan", kelas: "IX-B", kelompok: "Dirandra 1", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0118289347", name: "Ilyas Zaki", kelas: "IX-A", kelompok: "Dirandra 1", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "3123969901", name: "Muhamad Farhan Algivari", kelas: "VIII-A", kelompok: "Dirandra 1", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+
+  // Dirandra 2
+  { nisn: "0143620940", name: "Aisha Hanes Afitdaeni", kelas: "VII-B", kelompok: "Dirandra 2", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "3131859788", name: "Ayu Aulia Shinta", kelas: "VIII-A", kelompok: "Dirandra 2", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0136214394", name: "Azda Ananda Khoerunnisa", kelas: "VII-A", kelompok: "Dirandra 2", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0115264441", name: "Delia Nur Azizah", kelas: "IX-B", kelompok: "Dirandra 2", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0101987551", name: "Nurhalimah", kelas: "IX-A", kelompok: "Dirandra 2", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0116790973", name: "Princess Anindya Purnama", kelas: "IX-B", kelompok: "Dirandra 2", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+
+  // Elysia 1
+  { nisn: "0112612575", name: "Arya Nugraha", kelas: "IX-B", kelompok: "Elysia 1", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "3132407335", name: "Fauzan Ciryll Ibrahim", kelas: "VIII-A", kelompok: "Elysia 1", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0138481669", name: "Muhammad Iqbal Nur Hafizh", kelas: "VII-B", kelompok: "Elysia 1", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "3124013751", name: "Rivaldhy Ramadhan Putra", kelas: "VIII-A", kelompok: "Elysia 1", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0142979667", name: "Satria Ramadhani", kelas: "VII-A", kelompok: "Elysia 1", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+
+  // Elysia 2
+  { nisn: "0132495809", name: "Aliya Febriyanti", kelas: "VIII-A", kelompok: "Elysia 2", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0137186666", name: "Nakeila Syakirah Zahra", kelas: "VII-A", kelompok: "Elysia 2", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0152478643", name: "Rizqiya Azila Putri", kelas: "VII-B", kelompok: "Elysia 2", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0102614101", name: "Safa Putri Maharani", kelas: "IX-A", kelompok: "Elysia 2", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0113051255", name: "Salsabila Azahra", kelas: "IX-B", kelompok: "Elysia 2", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+
+  // Falana 1
+  { nisn: "3125473926", name: "Dezhar Zhibral Idris", kelas: "VIII-A", kelompok: "Falana 1", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "3137605649", name: "Gabriel Catur Purnama", kelas: "VII-A", kelompok: "Falana 1", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "0125320779", name: "M. Arya Duta Wijaya", kelas: "VIII-A", kelompok: "Falana 1", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "3132295076", name: "Rayyan Ziqri", kelas: "VII-B", kelompok: "Falana 1", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "0124002871", name: "Rizqy Avrilian Nugraha", kelas: "IX-A", kelompok: "Falana 1", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+
+  // Falana 2
+  { nisn: "0145166440", name: "Aqila Maharani", kelas: "VII-B", kelompok: "Falana 2", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "3135596916", name: "Aqiysya Bilqis Nur Agnetta", kelas: "VII-B", kelompok: "Falana 2", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "3132949617", name: "Fanny Anggraeny", kelas: "VIII-A", kelompok: "Falana 2", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "0112890554", name: "Safa Mutiara Safira", kelas: "IX-B", kelompok: "Falana 2", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+  { nisn: "0111012417", name: "Violina Angel", kelas: "IX-B", kelompok: "Falana 2", pembimbing: "Ihsan M. Syahid, S.Pd.", ruangan: "Ruang Kelas VII-B" },
+
+  // Ghananta 1
+  { nisn: "0125466311", name: "Adi Wistara", kelas: "VIII-A", kelompok: "Ghananta 1", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0123456789", name: "Dika Hermawan", kelas: "VII-B", kelompok: "Ghananta 1", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0127258464", name: "Milzan Ibrahim Movic", kelas: "IX-A", kelompok: "Ghananta 1", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "3131560963", name: "Reski Ditiya Putra", kelas: "VII-A", kelompok: "Ghananta 1", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0124265851", name: "Rifqy Rivanka Faisal", kelas: "IX-A", kelompok: "Ghananta 1", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+
+  // Ghananta 2
+  { nisn: "0117628467", name: "Keyla Amora Reppie", kelas: "IX-A", kelompok: "Ghananta 2", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0111806151", name: "Nasya Nur Afni", kelas: "IX-A", kelompok: "Ghananta 2", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0118034774", name: "Novia Angelia", kelas: "IX-B", kelompok: "Ghananta 2", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0137397437", name: "Putri Suci Lestari", kelas: "VII-A", kelompok: "Ghananta 2", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0145993897", name: "Rani Aprilyanti", kelas: "VII-A", kelompok: "Ghananta 2", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+  { nisn: "0116598890", name: "Siti Nurlela", kelas: "VIII-A", kelompok: "Ghananta 2", pembimbing: "Siti Rosidah, S.Pd., Gr.", ruangan: "Ruang Kelas VII-A" },
+
+  // Hiranya 1
+  { nisn: "3127362455", name: "Ahmad Maulana", kelas: "VII-A", kelompok: "Hiranya 1", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0132918381", name: "Ardan Fauzy Pratama", kelas: "VII-B", kelompok: "Hiranya 1", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0116530599", name: "Muhamad Najrin Saputra", kelas: "IX-B", kelompok: "Hiranya 1", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "3114964107", name: "Nicholas Novicky Sandy", kelas: "IX-A", kelompok: "Hiranya 1", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0119267611", name: "Nizam M. Rozak Fadilah", kelas: "IX-B", kelompok: "Hiranya 1", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+
+  // Hiranya 2
+  { nisn: "3128906202", name: "Arina Rahmawati", kelas: "IX-A", kelompok: "Hiranya 2", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0113857984", name: "Cahaya Ananda Tri Evita", kelas: "IX-B", kelompok: "Hiranya 2", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0133043995", name: "Fika Friciliani", kelas: "VIII-A", kelompok: "Hiranya 2", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0157242889", name: "Kanzza Dwi Lestari", kelas: "VII-A", kelompok: "Hiranya 2", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0147641986", name: "Reva Lestari", kelas: "VII-B", kelompok: "Hiranya 2", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+  { nisn: "0117248663", name: "Vera Indah Lestari", kelas: "IX-A", kelompok: "Hiranya 2", pembimbing: "Sulaeman, S.Pd.", ruangan: "Ruang Kelas IX-A" },
+
+  // Indivar 1
+  { nisn: "3136271475", name: "Fatir Muhammad Azka", kelas: "VII-A", kelompok: "Indivar 1", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0123538313", name: "Fawaz Ghaly Mughist Mukhlis", kelas: "IX-B", kelompok: "Indivar 1", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "3121385931", name: "Ismail Dwi Andhika", kelas: "VIII-A", kelompok: "Indivar 1", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0114517000", name: "Johan Permana", kelas: "IX-B", kelompok: "Indivar 1", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0128612635", name: "Muhamad Najran Saputra", kelas: "VIII-A", kelompok: "Indivar 1", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0143171413", name: "Rustandi Dzulkarnaen", kelas: "VII-B", kelompok: "Indivar 1", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+
+  // Indivar 2
+  { nisn: "0131559708", name: "Aqilla Putri Oktavia", kelas: "VII-B", kelompok: "Indivar 2", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0159096713", name: "Azahra Tri Lestari", kelas: "VII-A", kelompok: "Indivar 2", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0118095315", name: "Destri Zaumi Ananda", kelas: "IX-A", kelompok: "Indivar 2", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0115949335", name: "Kartika Susandi", kelas: "IX-B", kelompok: "Indivar 2", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+  { nisn: "0114722645", name: "Naurra Fadhilla Idris", kelas: "IX-A", kelompok: "Indivar 2", pembimbing: "R. Arnis Amalia Y., S.Pd.", ruangan: "Ruang Kelas IX-B" },
+
+  // Jayananda 1
+  { nisn: "0138600073", name: "Azka Aldric Wiguna", kelas: "VII-A", kelompok: "Jayananda 1", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "3116846258", name: "Dexel Gabriel", kelas: "VIII-A", kelompok: "Jayananda 1", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "0123192390", name: "Dika Arjun Saputra", kelas: "IX-A", kelompok: "Jayananda 1", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "3101509727", name: "Muhamad Noval Ardian", kelas: "IX-A", kelompok: "Jayananda 1", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "3137506205", name: "Muhammad Bilal Maulana", kelas: "VII-B", kelompok: "Jayananda 1", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "0123175730", name: "Novandra Raihan Putra", kelas: "VIII-A", kelompok: "Jayananda 1", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+
+  // Jayananda 2
+  { nisn: "0111637228", name: "Berlian Bushaynah Putri K.", kelas: "IX-B", kelompok: "Jayananda 2", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "3132669507", name: "Kania Aiysah", kelas: "IX-B", kelompok: "Jayananda 2", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "3122533819", name: "Safengi Listiana Suhada", kelas: "VIII-A", kelompok: "Jayananda 2", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "0115628758", name: "Sintia Septiani", kelas: "IX-B", kelompok: "Jayananda 2", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" },
+  { nisn: "3133503952", name: "Syaqilah Roffi Yulianti", kelas: "VII-A", kelompok: "Jayananda 2", pembimbing: "Nia Rosania, S.S.", ruangan: "Ruang Kelas VIII-A" }
+];
+
+const getGroupTheme = (groupName, isAdmin) => {
+  if (isAdmin) {
+    return {
+      name: 'Periwinkle',
+      bgApp: 'bg-indigo-950/20',
+      sidebarBg: 'from-indigo-950 via-indigo-900 to-slate-900',
+      mobileHeaderBg: 'bg-indigo-900',
+      banner: 'from-indigo-200/90 via-indigo-100/90 to-indigo-200/70',
+      border: 'border-indigo-300/80',
+      cardBorder: 'border-indigo-300/70',
+      badge: 'bg-indigo-200 text-indigo-950 border-indigo-400',
+      titleText: 'text-indigo-950',
+      subText: 'text-indigo-900',
+      primaryBtn: 'bg-indigo-800 hover:bg-indigo-900 text-white',
+      accentText: 'text-indigo-800',
+      accentBg: 'bg-indigo-200/50',
+      tableHeaderBg: 'bg-indigo-200/80 text-indigo-950 border-indigo-300',
+      navActive: 'bg-indigo-500/30 text-white font-bold border border-indigo-300/40',
+      navInactive: 'text-indigo-100/80 hover:bg-indigo-800/40 hover:text-white',
+      iconColor: 'text-indigo-300',
+      cardBg: 'bg-indigo-100/70',
+      innerCardBg: 'bg-indigo-200/40',
+      inputBg: 'bg-indigo-50/90 border-indigo-300 text-slate-900 focus:bg-indigo-100/90'
+    };
+  }
+
+  const name = groupName || '';
+  if (name.startsWith('Arunika')) {
+    return {
+      name: 'Baby Blue',
+      bgApp: 'bg-sky-950/20',
+      sidebarBg: 'from-sky-950 via-sky-900 to-slate-900',
+      mobileHeaderBg: 'bg-sky-900',
+      banner: 'from-sky-200/90 via-sky-100/90 to-sky-200/70',
+      border: 'border-sky-300/80',
+      cardBorder: 'border-sky-300/70',
+      badge: 'bg-sky-200 text-sky-950 border-sky-400',
+      titleText: 'text-sky-950',
+      subText: 'text-sky-900',
+      primaryBtn: 'bg-sky-800 hover:bg-sky-900 text-white',
+      accentText: 'text-sky-800',
+      accentBg: 'bg-sky-200/50',
+      tableHeaderBg: 'bg-sky-200/80 text-sky-950 border-sky-300',
+      navActive: 'bg-sky-500/30 text-white font-bold border border-sky-300/40',
+      navInactive: 'text-sky-100/80 hover:bg-sky-800/40 hover:text-white',
+      iconColor: 'text-sky-300',
+      cardBg: 'bg-sky-100/70',
+      innerCardBg: 'bg-sky-200/40',
+      inputBg: 'bg-sky-50/90 border-sky-300 text-slate-900 focus:bg-sky-100/90'
+    };
+  }
+  if (name.startsWith('Bramanta')) {
+    return {
+      name: 'Mint Green',
+      bgApp: 'bg-emerald-950/20',
+      sidebarBg: 'from-emerald-950 via-emerald-900 to-slate-900',
+      mobileHeaderBg: 'bg-emerald-900',
+      banner: 'from-emerald-200/90 via-emerald-100/90 to-emerald-200/70',
+      border: 'border-emerald-300/80',
+      cardBorder: 'border-emerald-300/70',
+      badge: 'bg-emerald-200 text-emerald-950 border-emerald-400',
+      titleText: 'text-emerald-950',
+      subText: 'text-emerald-900',
+      primaryBtn: 'bg-emerald-800 hover:bg-emerald-900 text-white',
+      accentText: 'text-emerald-800',
+      accentBg: 'bg-emerald-200/50',
+      tableHeaderBg: 'bg-emerald-200/80 text-emerald-950 border-emerald-300',
+      navActive: 'bg-emerald-500/30 text-white font-bold border border-emerald-300/40',
+      navInactive: 'text-emerald-100/80 hover:bg-emerald-800/40 hover:text-white',
+      iconColor: 'text-emerald-300',
+      cardBg: 'bg-emerald-100/70',
+      innerCardBg: 'bg-emerald-200/40',
+      inputBg: 'bg-emerald-50/90 border-emerald-300 text-slate-900 focus:bg-emerald-100/90'
+    };
+  }
+  if (name.startsWith('Carumita')) {
+    return {
+      name: 'Lavender',
+      bgApp: 'bg-purple-950/20',
+      sidebarBg: 'from-purple-950 via-purple-900 to-slate-900',
+      mobileHeaderBg: 'bg-purple-900',
+      banner: 'from-purple-200/90 via-purple-100/90 to-purple-200/70',
+      border: 'border-purple-300/80',
+      cardBorder: 'border-purple-300/70',
+      badge: 'bg-purple-200 text-purple-950 border-purple-400',
+      titleText: 'text-purple-950',
+      subText: 'text-purple-900',
+      primaryBtn: 'bg-purple-800 hover:bg-purple-900 text-white',
+      accentText: 'text-purple-800',
+      accentBg: 'bg-purple-200/50',
+      tableHeaderBg: 'bg-purple-200/80 text-purple-950 border-purple-300',
+      navActive: 'bg-purple-500/30 text-white font-bold border border-purple-300/40',
+      navInactive: 'text-purple-100/80 hover:bg-purple-800/40 hover:text-white',
+      iconColor: 'text-purple-300',
+      cardBg: 'bg-purple-100/70',
+      innerCardBg: 'bg-purple-200/40',
+      inputBg: 'bg-purple-50/90 border-purple-300 text-slate-900 focus:bg-purple-100/90'
+    };
+  }
+  if (name.startsWith('Dirandra')) {
+    return {
+      name: 'Peach',
+      bgApp: 'bg-orange-950/20',
+      sidebarBg: 'from-orange-950 via-orange-900 to-slate-900',
+      mobileHeaderBg: 'bg-orange-900',
+      banner: 'from-orange-200/90 via-orange-100/90 to-orange-200/70',
+      border: 'border-orange-300/80',
+      cardBorder: 'border-orange-300/70',
+      badge: 'bg-orange-200 text-orange-950 border-orange-400',
+      titleText: 'text-orange-950',
+      subText: 'text-orange-900',
+      primaryBtn: 'bg-orange-800 hover:bg-orange-900 text-white',
+      accentText: 'text-orange-800',
+      accentBg: 'bg-orange-200/50',
+      tableHeaderBg: 'bg-orange-200/80 text-orange-950 border-orange-300',
+      navActive: 'bg-orange-500/30 text-white font-bold border border-orange-300/40',
+      navInactive: 'text-orange-100/80 hover:bg-orange-800/40 hover:text-white',
+      iconColor: 'text-orange-300',
+      cardBg: 'bg-orange-100/70',
+      innerCardBg: 'bg-orange-200/40',
+      inputBg: 'bg-orange-50/90 border-orange-300 text-slate-900 focus:bg-orange-100/90'
+    };
+  }
+  if (name.startsWith('Elysia')) {
+    return {
+      name: 'Rose Quartz',
+      bgApp: 'bg-rose-950/20',
+      sidebarBg: 'from-rose-950 via-rose-900 to-slate-900',
+      mobileHeaderBg: 'bg-rose-900',
+      banner: 'from-rose-200/90 via-rose-100/90 to-rose-200/70',
+      border: 'border-rose-300/80',
+      cardBorder: 'border-rose-300/70',
+      badge: 'bg-rose-200 text-rose-950 border-rose-400',
+      titleText: 'text-rose-950',
+      subText: 'text-rose-900',
+      primaryBtn: 'bg-rose-800 hover:bg-rose-900 text-white',
+      accentText: 'text-rose-800',
+      accentBg: 'bg-rose-200/50',
+      tableHeaderBg: 'bg-rose-200/80 text-rose-950 border-rose-300',
+      navActive: 'bg-rose-500/30 text-white font-bold border border-rose-300/40',
+      navInactive: 'text-rose-100/80 hover:bg-rose-800/40 hover:text-white',
+      iconColor: 'text-rose-300',
+      cardBg: 'bg-rose-100/70',
+      innerCardBg: 'bg-rose-200/40',
+      inputBg: 'bg-rose-50/90 border-rose-300 text-slate-900 focus:bg-rose-100/90'
+    };
+  }
+  if (name.startsWith('Falana')) {
+    return {
+      name: 'Butter Yellow',
+      bgApp: 'bg-amber-950/20',
+      sidebarBg: 'from-amber-950 via-amber-900 to-slate-900',
+      mobileHeaderBg: 'bg-amber-900',
+      banner: 'from-amber-200/90 via-amber-100/90 to-amber-200/70',
+      border: 'border-amber-300/80',
+      cardBorder: 'border-amber-300/70',
+      badge: 'bg-amber-200 text-amber-950 border-amber-400',
+      titleText: 'text-amber-950',
+      subText: 'text-amber-900',
+      primaryBtn: 'bg-amber-800 hover:bg-amber-900 text-white',
+      accentText: 'text-amber-800',
+      accentBg: 'bg-amber-200/50',
+      tableHeaderBg: 'bg-amber-200/80 text-amber-950 border-amber-300',
+      navActive: 'bg-amber-500/30 text-white font-bold border border-amber-300/40',
+      navInactive: 'text-amber-100/80 hover:bg-amber-800/40 hover:text-white',
+      iconColor: 'text-amber-300',
+      cardBg: 'bg-amber-100/70',
+      innerCardBg: 'bg-amber-200/40',
+      inputBg: 'bg-amber-50/90 border-amber-300 text-slate-900 focus:bg-amber-100/90'
+    };
+  }
+  if (name.startsWith('Ghananta')) {
+    return {
+      name: 'Seafoam Green',
+      bgApp: 'bg-teal-950/20',
+      sidebarBg: 'from-teal-950 via-teal-900 to-slate-900',
+      mobileHeaderBg: 'bg-teal-900',
+      banner: 'from-teal-200/90 via-teal-100/90 to-teal-200/70',
+      border: 'border-teal-300/80',
+      cardBorder: 'border-teal-300/70',
+      badge: 'bg-teal-200 text-teal-950 border-teal-400',
+      titleText: 'text-teal-950',
+      subText: 'text-teal-900',
+      primaryBtn: 'bg-teal-800 hover:bg-teal-900 text-white',
+      accentText: 'text-teal-800',
+      accentBg: 'bg-teal-200/50',
+      tableHeaderBg: 'bg-teal-200/80 text-teal-950 border-teal-300',
+      navActive: 'bg-teal-500/30 text-white font-bold border border-teal-300/40',
+      navInactive: 'text-teal-100/80 hover:bg-teal-800/40 hover:text-white',
+      iconColor: 'text-teal-300',
+      cardBg: 'bg-teal-100/70',
+      innerCardBg: 'bg-teal-200/40',
+      inputBg: 'bg-teal-50/90 border-teal-300 text-slate-900 focus:bg-teal-100/90'
+    };
+  }
+  if (name.startsWith('Hiranya')) {
+    return {
+      name: 'Soft Coral',
+      bgApp: 'bg-red-950/20',
+      sidebarBg: 'from-red-950 via-red-900 to-slate-900',
+      mobileHeaderBg: 'bg-red-900',
+      banner: 'from-red-200/90 via-red-100/90 to-red-200/70',
+      border: 'border-red-300/80',
+      cardBorder: 'border-red-300/70',
+      badge: 'bg-red-200 text-red-950 border-red-400',
+      titleText: 'text-red-950',
+      subText: 'text-red-900',
+      primaryBtn: 'bg-red-800 hover:bg-red-900 text-white',
+      accentText: 'text-red-800',
+      accentBg: 'bg-red-200/50',
+      tableHeaderBg: 'bg-red-200/80 text-red-950 border-red-300',
+      navActive: 'bg-red-500/30 text-white font-bold border border-red-300/40',
+      navInactive: 'text-red-100/80 hover:bg-red-800/40 hover:text-white',
+      iconColor: 'text-red-300',
+      cardBg: 'bg-red-100/70',
+      innerCardBg: 'bg-red-200/40',
+      inputBg: 'bg-red-50/90 border-red-300 text-slate-900 focus:bg-red-100/90'
+    };
+  }
+  if (name.startsWith('Indivar')) {
+    return {
+      name: 'Dusty Rose',
+      bgApp: 'bg-pink-950/20',
+      sidebarBg: 'from-pink-950 via-pink-900 to-slate-900',
+      mobileHeaderBg: 'bg-pink-900',
+      banner: 'from-pink-200/90 via-pink-100/90 to-pink-200/70',
+      border: 'border-pink-300/80',
+      cardBorder: 'border-pink-300/70',
+      badge: 'bg-pink-200 text-pink-950 border-pink-400',
+      titleText: 'text-pink-950',
+      subText: 'text-pink-900',
+      primaryBtn: 'bg-pink-800 hover:bg-pink-900 text-white',
+      accentText: 'text-pink-800',
+      accentBg: 'bg-pink-200/50',
+      tableHeaderBg: 'bg-pink-200/80 text-pink-950 border-pink-300',
+      navActive: 'bg-pink-500/30 text-white font-bold border border-pink-300/40',
+      navInactive: 'text-pink-100/80 hover:bg-pink-800/40 hover:text-white',
+      iconColor: 'text-pink-300',
+      cardBg: 'bg-pink-100/70',
+      innerCardBg: 'bg-pink-200/40',
+      inputBg: 'bg-pink-50/90 border-pink-300 text-slate-900 focus:bg-pink-100/90'
+    };
+  }
+  if (name.startsWith('Jayananda')) {
+    return {
+      name: 'Soft Green',
+      bgApp: 'bg-green-950/20',
+      sidebarBg: 'from-green-950 via-green-900 to-slate-900',
+      mobileHeaderBg: 'bg-green-900',
+      banner: 'from-green-200/90 via-green-100/90 to-green-200/70',
+      border: 'border-green-300/80',
+      cardBorder: 'border-green-300/70',
+      badge: 'bg-green-200 text-green-950 border-green-400',
+      titleText: 'text-green-950',
+      subText: 'text-green-900',
+      primaryBtn: 'bg-green-800 hover:bg-green-900 text-white',
+      accentText: 'text-green-800',
+      accentBg: 'bg-green-200/50',
+      tableHeaderBg: 'bg-green-200/80 text-green-950 border-green-300',
+      navActive: 'bg-green-500/30 text-white font-bold border border-green-300/40',
+      navInactive: 'text-green-100/80 hover:bg-green-800/40 hover:text-white',
+      iconColor: 'text-green-300',
+      cardBg: 'bg-green-100/70',
+      innerCardBg: 'bg-green-200/40',
+      inputBg: 'bg-green-50/90 border-green-300 text-slate-900 focus:bg-green-100/90'
+    };
+  }
+
+  return {
+    name: 'Mint Green',
+    bgApp: 'bg-emerald-950/20',
+    sidebarBg: 'from-emerald-950 via-emerald-900 to-slate-900',
+    mobileHeaderBg: 'bg-emerald-900',
+    banner: 'from-emerald-200/90 via-emerald-100/90 to-emerald-200/70',
+    border: 'border-emerald-300/80',
+    cardBorder: 'border-emerald-300/70',
+    badge: 'bg-emerald-200 text-emerald-950 border-emerald-400',
+    titleText: 'text-emerald-950',
+    subText: 'text-emerald-900',
+    primaryBtn: 'bg-emerald-800 hover:bg-emerald-900 text-white',
+    accentText: 'text-emerald-800',
+    accentBg: 'bg-emerald-200/50',
+    tableHeaderBg: 'bg-emerald-200/80 text-emerald-950 border-emerald-300',
+    navActive: 'bg-emerald-500/30 text-white font-bold border border-emerald-300/40',
+    navInactive: 'text-emerald-100/80 hover:bg-emerald-800/40 hover:text-white',
+    iconColor: 'text-emerald-300',
+    cardBg: 'bg-emerald-100/70',
+    innerCardBg: 'bg-emerald-200/40',
+    inputBg: 'bg-emerald-50/90 border-emerald-300 text-slate-900 focus:bg-emerald-100/90'
+  };
+};
+
+const ALL_GROUP_NAMES = Array.from(new Set(MASTER_STUDENT_DATABASE.map(s => s.kelompok)));
+
+const GROUP_CREDENTIALS = ALL_GROUP_NAMES.reduce((acc, group) => {
+  const username = group.toLowerCase().replace(/\s+/g, '_');
+  acc[username] = {
+    username,
+    password: username,
+    groupName: group,
+    role: 'student'
+  };
+  return acc;
+}, {});
+
+const ADMIN_CREDENTIAL = {
+  username: 'administrator',
+  password: 'leadership',
+  role: 'admin'
+};
+
+const getGroupData = (groupName) => {
+  const members = MASTER_STUDENT_DATABASE.filter(s => s.kelompok === groupName);
+  const sample = members[0] || { pembimbing: 'Siti Rosidah, S.Pd., Gr.', ruangan: 'Ruang Kelas VII-A' };
+  
+  return {
+    groupName,
+    pembimbing: sample.pembimbing,
+    ruangan: sample.ruangan,
+    ketua: '',
+    sekretaris: '',
+    members: members.map((m, idx) => ({
+      id: idx + 1,
+      nisn: m.nisn,
+      name: m.name,
+      kelas: m.kelas
+    }))
+  };
+};
+
+const PROFIL_LULUSAN_DIMENSI = [
+  {
+    id: 'dim-1',
+    code: 'DPL 1',
+    title: 'Keimanan dan Ketakwaan terhadap Tuhan Yang Maha Esa',
+    subdimensions: [
+      {
+        name: 'Hubungan dengan Sesama Manusia',
+        levels: {
+          BERKEMBANG: 'Menunjukkan perilaku akhlak mulia dalam kehidupan sosial dengan saling menghormati dan berintegritas namun belum konsisten.',
+          CAKAP: 'Menunjukkan perilaku akhlak mulia dengan mengembangkan sikap kasih sayang, kejujuran keadilan, dan tanggung jawab secara konsisten dalam kehidupan pribadi dan sosial.',
+          MAHIR: 'Menunjukkan perilaku akhlak mulia dengan mengembangkan sikap kasih sayang, kejujuran, keadilan, dan tanggung jawab secara konsisten dalam kehidupan pribadi dan sosial serta mampu mengajak orang lain.'
+        }
+      },
+      {
+        name: 'Hubungan dengan Lingkungan Alam',
+        levels: {
+          BERKEMBANG: 'Memiliki kesadaran untuk menjaga keseimbangan dan kelestarian lingkungan alam sesuai dengan menggunakan pengetahuan yang dimilikinya.',
+          CAKAP: 'Menjaga keseimbangan dan kelestarian lingkungan alam dengan menggunakan pengetahuan yang dimilikinya.',
+          MAHIR: 'Menjaga keseimbangan dan kelestarian lingkungan alam dengan menggunakan pengetahuan yang dimilikinya bersama-sama dengan orang lain.'
+        }
+      }
+    ]
+  },
+  {
+    id: 'dim-2',
+    code: 'DPL 5',
+    title: 'Kolaborasi',
+    subdimensions: [
+      {
+        name: 'Berbagi',
+        levels: {
+          BERKEMBANG: 'Saling berkontribusi dalam pemanfaatan bersama sumber daya, pengetahuan, dan gagasan untuk tujuan saling memberdayakan namun belum konsisten.',
+          CAKAP: 'Saling berkontribusi dalam pemanfaatan bersama sumber daya, pengetahuan, dan gagasan untuk tujuan saling memberdayakan.',
+          MAHIR: 'Mengambil inisiatif untuk saling berkontribusi dalam pemanfaatan bersama sumber daya, pengetahuan, dan gagasan untuk tujuan saling memberdayakan.'
+        }
+      },
+      {
+        name: 'Kerja sama',
+        levels: {
+          BERKEMBANG: 'Bekerjasama dengan berbagai pihak dari dalam satuan pendidikan untuk peningkatan kualitas bersama namun belum konsisten.',
+          CAKAP: 'Bekerjasama dengan berbagai pihak dari dalam satuan pendidikan untuk peningkatan kualitas bersama secara konsisten.',
+          MAHIR: 'Mengambil inisiatif untuk bekerjasama dengan berbagai pihak dari dalam dan luar satuan pendidikan untuk peningkatan kualitas bersama.'
+        }
+      }
+    ]
+  },
+  {
+    id: 'dim-3',
+    code: 'DPL 6',
+    title: 'Kemandirian',
+    subdimensions: [
+      {
+        name: 'Bertanggung jawab',
+        levels: {
+          BERKEMBANG: 'Menetapkan target pembelajaran dan melakukan upaya untuk mencapainya dengan bimbingan penuh.',
+          CAKAP: 'Menetapkan target pembelajaran dan melakukan upaya untuk mencapainya dengan bimbingan.',
+          MAHIR: 'Menetapkan target pembelajaran dan melakukan upaya untuk mencapainya dengan bimbingan minimal.'
+        }
+      },
+      {
+        name: 'Kepemimpinan',
+        levels: {
+          BERKEMBANG: 'Memotivasi dan meregulasi diri sendiri dalam mencapai target yang ditentukan dengan bimbingan penuh.',
+          CAKAP: 'Memotivasi dan meregulasi diri sendiri dalam mencapai target yang ditentukan dengan bimbingan.',
+          MAHIR: 'Memotivasi dan mengorganisasi teman sebaya untuk mencapai target yang ditetapkan bersama secara tuntas dengan bimbingan minimal'
+        }
+      },
+      {
+        name: 'Pengembangan Diri',
+        levels: {
+          BERKEMBANG: 'Mengidentifikasi potensi dan bakat diri, menyusun rencana pengembangan diri untuk mewujudkan cita- cita dengan bimbingan penuh.',
+          CAKAP: 'Mengidentifikasi potensi dan bakat diri, menyusun dan mengaktualisasi rencana pengembangan diri untuk mewujudkan cita- cita dengan bimbingan.',
+          MAHIR: 'Mengaktualisasi rencana pengembangan diri untuk mewujudkan cita-cita serta mampu beradaptasi dengan perubahan dan menghadapi tantangan dengan bimbingan minimal.'
+        }
+      }
+    ]
+  },
+  {
+    id: 'dim-4',
+    code: 'DPL 8',
+    title: 'Komunikasi',
+    subdimensions: [
+      {
+        name: 'Menyimak',
+        levels: {
+          BERKEMBANG: 'Mendengarkan secara aktif sejumlah teks lisan yang dipilih untuk mendapatkan informasi yang eksplisit dan implisit.',
+          CAKAP: 'Mendengarkan secara aktif sejumlah teks lisan yang dipilih untuk mendapatkan informasi yang eksplisit dan implisit, dan memberikan tanggapan yang relevan.',
+          MAHIR: 'Mendengarkan secara aktif sejumlah teks lisan yang dipilih untuk mendapatkan informasi yang eksplisit dan implisit, dan memberikan tanggapan yang relevan dan kritis.'
+        }
+      },
+      {
+        name: 'Berbicara',
+        levels: {
+          BERKEMBANG: 'Menyampaikan, menggali, dan menanggapi secara lisan berbagai jenis informasi namun belum tepat dan lancar.',
+          CAKAP: 'Menyampaikan, menggali, dan menanggapi secara lisan berbagai jenis informasi dengan cara yang cukup tepat, lancar, dan efektif.',
+          MAHIR: 'Menyampaikan, menggali, dan menanggapi secara lisan berbagai jenis informasi dengan cara yang benar, tepat, lancar, dan efektif.'
+        }
+      }
+    ]
+  }
+];
+
+const INTEGRATED_SUBJECTS = [
+  {
+    id: 'subj-1',
+    code: 'PABP',
+    name: 'PABP (Pendidikan Agama & Budi Pekerti)',
+    icon: '🕌',
+    badgeColor: 'bg-emerald-200 text-emerald-950 border-emerald-300',
+    themeTitle: 'Menanamkan Fondasi Moral & Ketakwaan',
+    themeRelation: 'Memastikan kepemimpinan siswa dilandasi oleh kejujuran, rasa takut melakukan pelanggaran, tanggung jawab moral kepada Tuhan, serta sikap saling menghargai perbedaan di dalam regu.',
+    activities: [
+      'Analisis nilai integritas dan keteladanan melalui studi tokoh pemimpin.',
+      'Pematerian adab, etika berinteraksi, dan toleransi antar sesama.',
+      'Refleksi spiritual harian dan penulisan Janji Komitmen Karakter.'
+    ]
+  },
+  {
+    id: 'subj-2',
+    code: 'PANCASILA',
+    name: 'Pendidikan Pancasila',
+    icon: '🇮🇩',
+    badgeColor: 'bg-red-200 text-red-950 border-red-300',
+    themeTitle: 'Membangun Jiwa Demokratis & Kedisiplinan',
+    themeRelation: 'Melatih siswa untuk memahami pentingnya aturan bersama, menghargai pendapat orang lain saat berdiskusi, serta tunduk pada keputusan kelompok secara bertanggung jawab.',
+    activities: [
+      'Musyawarah pembentukan regu dan penyusunan Anggaran Dasar/Kode Etik Regu.',
+      'Studi kasus pelanggaran aturan dan penyelesaiannya secara hukum/mufakat.',
+      'Pembagian peranan, hak, dan kewajiban anggota secara adil.'
+    ]
+  },
+  {
+    id: 'subj-3',
+    code: 'IPS',
+    name: 'IPS (Ilmu Pengetahuan Sosial)',
+    icon: '🌍',
+    badgeColor: 'bg-amber-200 text-amber-950 border-amber-300',
+    themeTitle: 'Mengasah Empati Sosial & Kecerdasan Berelasi',
+    themeRelation: 'Membantu siswa memahami keberagaman karakter anggota tim, mengelola emosi dan benturan antar individu, serta tanggap terhadap dinamika lingkungan sekitarnya.',
+    activities: [
+      'Pematerian sosiometri dan dinamika sosial kelompok untuk mencegah bullying.',
+      'Simulasi teknik manajemen konflik dan komunikasi efektif (I-message).'
+    ]
+  },
+  {
+    id: 'subj-4',
+    code: 'IPA',
+    name: 'IPA (Ilmu Pengetahuan Alam)',
+    icon: '🌱',
+    badgeColor: 'bg-sky-200 text-sky-950 border-sky-300',
+    themeTitle: 'Menumbuhkan Nalar Kritis & Kepedulian Lingkungan',
+    themeRelation: 'Membentuk pemimpin yang berbasis data (data-driven), cerdas mengambil keputusan berbasis risiko ilmiah, serta memiliki kepedulian tinggi terhadap kelestarian alam.',
+    activities: [
+      'Pematerian teori Sains Survival',
+      'Pematerian prinsip biologi P3K (hipotermia, dehidrasi, dan respons tubuh saat lelah).'
+    ]
+  },
+  {
+    id: 'subj-5',
+    code: 'PJOK',
+    name: 'PJOK (Pendidikan Jasmani, Olahraga, & Kesehatan)',
+    icon: '🏃',
+    badgeColor: 'bg-indigo-200 text-indigo-950 border-indigo-300',
+    themeTitle: 'Melatih Ketahanan Mental & Respon Cepat (Resilience)',
+    themeRelation: 'Membangun dorongan pantang menyerah (never-give-up attitude) saat menghadapi kondisi sulit, serta kesiapsiagaan fisik untuk saling menolong sesama anggota regu.',
+    activities: [
+      'Pematerian manajemen fisik, hidrasi, dan strategi menjaga stamina.',
+      'Teori dan langkah teknis pertolongan pertama pada cedera otot/medis lapangan.',
+      'Pembekalan Mental Toughness (ketahanan mental dan resilience).'
+    ]
+  }
+];
+
+export default function App() {
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('koku_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [activeMenu, setActiveMenu] = useState('home');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeGroup, setActiveGroup] = useState('Arunika 1');
+
+  const [structuresMap, setStructuresMap] = useState(() => {
+    const saved = localStorage.getItem('koku_structures');
+    if (saved) return JSON.parse(saved);
+    const initial = {};
+    ALL_GROUP_NAMES.forEach(grp => {
+      initial[grp] = { ketua: '', sekretaris: '' };
+    });
+    return initial;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('koku_structures', JSON.stringify(structuresMap));
+  }, [structuresMap]);
+
+  const [groupInfo, setGroupInfo] = useState(() => {
+    const data = getGroupData(activeGroup);
+    return {
+      ...data,
+      ketua: structuresMap[activeGroup]?.ketua || '',
+      sekretaris: structuresMap[activeGroup]?.sekretaris || ''
+    };
+  });
+
+  useEffect(() => {
+    const data = getGroupData(activeGroup);
+    setGroupInfo({
+      ...data,
+      ketua: structuresMap[activeGroup]?.ketua || '',
+      sekretaris: structuresMap[activeGroup]?.sekretaris || ''
+    });
+  }, [activeGroup, structuresMap]);
+
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('koku_user', JSON.stringify(currentUser));
+      if (currentUser.role === 'student') {
+        setActiveGroup(currentUser.groupName);
+      }
+    } else {
+      localStorage.removeItem('koku_user');
+    }
+  }, [currentUser]);
+
+  const [presensiList, setPresensiList] = useState(() => {
+    const saved = localStorage.getItem('koku_presensi');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [lkpdList, setLkpdList] = useState(() => {
+    const saved = localStorage.getItem('koku_lkpd');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [journalList, setJournalList] = useState(() => {
+    const saved = localStorage.getItem('koku_journals');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('koku_presensi', JSON.stringify(presensiList));
+  }, [presensiList]);
+
+  useEffect(() => {
+    localStorage.setItem('koku_lkpd', JSON.stringify(lkpdList));
+  }, [lkpdList]);
+
+  useEffect(() => {
+    localStorage.setItem('koku_journals', JSON.stringify(journalList));
+  }, [journalList]);
+
+  useEffect(() => {
+    const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    link.type = 'image/png';
+    link.rel = 'shortcut icon';
+    link.href = 'https://i.ibb.co.com/8gMSjY4F/IMG-20251203-114653.png';
+    document.getElementsByTagName('head')[0].appendChild(link);
+    document.title = currentUser?.role === 'admin' 
+      ? "Portal Admin Kokurikuler SMP YPU Bandung 2026"
+      : "Dashboard Kelompok - Kegiatan Kokurikuler SMP YPU Bandung 2026";
+  }, [currentUser]);
+
+  const [toastMessage, setToastMessage] = useState(null);
+  const showNotification = (msg, type = 'success') => {
+    setToastMessage({ msg, type });
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleLogin = (userObj) => {
+    setCurrentUser(userObj);
+    if (userObj.role === 'admin') {
+      setActiveMenu('admin_ringkasan');
+    } else {
+      setActiveGroup(userObj.groupName);
+      setActiveMenu('home');
+    }
+    showNotification(`Selamat datang, ${userObj.role === 'admin' ? 'Administrator' : userObj.groupName}!`);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    showNotification('Anda telah keluar dari sistem.');
+  };
+
+  const [orgError, setOrgError] = useState('');
+  const handleUpdateStructure = (newKetua, newSekretaris) => {
+    if (!newKetua || !newSekretaris) {
+      setOrgError('Harap pilih Ketua dan Sekretaris kelompok!');
+      return false;
+    }
+    if (newKetua === newSekretaris) {
+      setOrgError('Ketua dan Sekretaris tidak boleh individu yang sama!');
+      return false;
+    }
+    setOrgError('');
+    setStructuresMap(prev => ({
+      ...prev,
+      [activeGroup]: { ketua: newKetua, sekretaris: newSekretaris }
+    }));
+    showNotification(`Struktur organisasi ${activeGroup} berhasil ditetapkan!`);
+    return true;
+  };
+
+  const handleResetData = () => {
+    setPresensiList([]);
+    setLkpdList([]);
+    setJournalList([]);
+    setStructuresMap({});
+    localStorage.clear();
+    showNotification('Seluruh data telah dikosongkan!');
+  };
+
+  if (!currentUser) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  const isAdmin = currentUser.role === 'admin';
+  const currentTheme = getGroupTheme(activeGroup, isAdmin);
+
+  return (
+    <div className={`h-screen w-full ${currentTheme.bgApp} text-slate-900 font-sans flex flex-col md:flex-row overflow-hidden relative selection:bg-slate-300 print:bg-white print:text-black print:h-auto print:overflow-visible`}>
+      
+      {/* Global CSS for Print Media */}
+      <style>{`
+        @media print {
+          body, html {
+            background: #ffffff !important;
+            color: #000000 !important;
+          }
+          .print\\:hidden, aside, header, nav, button, footer {
+            display: none !important;
+          }
+          .print\\:block {
+            display: block !important;
+          }
+          .print\\:w-full {
+            width: 100% !important;
+          }
+          #print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            background: white !important;
+            color: black !important;
+          }
+        }
+      `}</style>
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-2xl shadow-xl border flex items-center gap-2 transition-all duration-300 animate-bounce print:hidden ${
+          toastMessage.type === 'error' ? 'bg-red-100 border-red-300 text-red-900' : `${currentTheme.primaryBtn} border-white/20 text-white`
+        }`}>
+          <CheckCircle2 className="w-5 h-5 text-white" />
+          <span className="text-xs font-bold">{toastMessage.msg}</span>
+        </div>
+      )}
+
+      {/* Mobile Header Bar */}
+      <div className={`md:hidden ${currentTheme.mobileHeaderBg} text-white p-4 flex justify-between items-center sticky top-0 z-30 shadow-md flex-shrink-0 print:hidden`}>
+        <div className="flex items-center gap-2.5">
+          <img 
+            src="https://i.ibb.co.com/8gMSjY4F/IMG-20251203-114653.png" 
+            alt="Logo SMP YPU Bandung" 
+            className="w-8 h-8 object-contain bg-white/20 p-1 rounded-xl border border-white/30" 
+          />
+          <div>
+            <span className="font-bold text-sm tracking-wide block leading-none">
+              {isAdmin ? "Portal Administrator" : "Dashboard Kelompok"}
+            </span>
+            <span className="text-[10px] text-white/80">Kegiatan Kokurikuler SMP YPU Bandung 2026</span>
+          </div>
+        </div>
+        <button 
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+          className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-white"
+        >
+          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </div>
+
+      {/* Sidebar Navigation */}
+      <aside 
+        className={`fixed md:static top-0 left-0 h-full w-56 sm:w-60 bg-gradient-to-b ${currentTheme.sidebarBg} text-white flex flex-col justify-between z-20 shadow-2xl transition-transform duration-300 ease-in-out flex-shrink-0 print:hidden ${
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+      >
+        <div className="p-4 border-b border-white/10 relative overflow-hidden flex-shrink-0">
+          <div className="flex items-center gap-2.5 relative z-10">
+            <img 
+              src="https://i.ibb.co.com/8gMSjY4F/IMG-20251203-114653.png" 
+              alt="Logo SMP YPU Bandung" 
+              className="w-9 h-9 object-contain bg-white/10 p-1 border border-white/30 rounded-xl shadow-inner backdrop-blur-sm flex-shrink-0" 
+            />
+            <div>
+              <h1 className="font-black text-sm tracking-wide text-white leading-snug">
+                {isAdmin ? "Portal Admin" : "Dashboard Kelompok"}
+              </h1>
+              <p className="text-[10px] text-white/80 font-medium leading-tight">Kokurikuler SMP YPU 2026</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Scrollable Nav Items */}
+        <div className="px-2 py-3 flex-1 overflow-y-auto space-y-1 custom-scrollbar">
+          {isAdmin ? (
+            <>
+              <div className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-indigo-200/60">
+                Menu Administrator
+              </div>
+              <NavItem 
+                icon={<Grid className="w-4 h-4" />} 
+                label="Ringkasan Kelompok" 
+                active={activeMenu === 'admin_ringkasan'} 
+                onClick={() => { setActiveMenu('admin_ringkasan'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+              <NavItem 
+                icon={<BarChart3 className="w-4 h-4" />} 
+                label="Rekap Struktur Kelompok" 
+                active={activeMenu === 'admin_rekap_struktur'} 
+                onClick={() => { setActiveMenu('admin_rekap_struktur'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+              <NavItem 
+                icon={<UserCheck className="w-4 h-4" />} 
+                label="Presensi Harian" 
+                active={activeMenu === 'admin_presensi_harian'} 
+                onClick={() => { setActiveMenu('admin_presensi_harian'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+              <NavItem 
+                icon={<PieChart className="w-4 h-4" />} 
+                label="Rekap Total Kehadiran" 
+                active={activeMenu === 'admin_rekap_total_presensi'} 
+                onClick={() => { setActiveMenu('admin_rekap_total_presensi'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+              <NavItem 
+                icon={<UploadCloud className="w-4 h-4" />} 
+                label="LKPD yang Diunggah" 
+                active={activeMenu === 'admin_lkpd_diunggah'} 
+                onClick={() => { setActiveMenu('admin_lkpd_diunggah'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+              <NavItem 
+                icon={<FileSpreadsheet className="w-4 h-4" />} 
+                label="Rekap Pengumpulan LKPD" 
+                active={activeMenu === 'admin_rekap_lkpd'} 
+                onClick={() => { setActiveMenu('admin_rekap_lkpd'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+              <NavItem 
+                icon={<Printer className="w-4 h-4" />} 
+                label="Jurnal Kegiatan & Cetak" 
+                active={activeMenu === 'admin_jurnal_cetak'} 
+                onClick={() => { setActiveMenu('admin_jurnal_cetak'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+            </>
+          ) : (
+            <>
+              <NavItem 
+                icon={<Home className="w-4 h-4" />} 
+                label="Home" 
+                active={activeMenu === 'home'} 
+                onClick={() => { setActiveMenu('home'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+              <NavItem 
+                icon={<Users className="w-4 h-4" />} 
+                label="Struktur Kelompok" 
+                active={activeMenu === 'struktur'} 
+                onClick={() => { setActiveMenu('struktur'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+              <NavItem 
+                icon={<UserCheck className="w-4 h-4" />} 
+                label="Presensi" 
+                active={activeMenu === 'presensi'} 
+                onClick={() => { setActiveMenu('presensi'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+              <NavItem 
+                icon={<UploadCloud className="w-4 h-4" />} 
+                label="Upload LKPD" 
+                active={activeMenu === 'lkpd'} 
+                onClick={() => { setActiveMenu('lkpd'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+              <NavItem 
+                icon={<BookOpen className="w-4 h-4" />} 
+                label="Jurnal Kegiatan" 
+                active={activeMenu === 'jurnal'} 
+                onClick={() => { setActiveMenu('jurnal'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+              <NavItem 
+                icon={<Award className="w-4 h-4" />} 
+                label="Dimensi Profil Lulusan" 
+                active={activeMenu === 'profil'} 
+                onClick={() => { setActiveMenu('profil'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+              <NavItem 
+                icon={<BookOpen className="w-4 h-4" />} 
+                label="Mata Pelajaran Terintegrasi" 
+                active={activeMenu === 'mapel'} 
+                onClick={() => { setActiveMenu('mapel'); setMobileMenuOpen(false); }} 
+                theme={currentTheme}
+              />
+            </>
+          )}
+        </div>
+
+        {/* Footer Sidebar Docked at Bottom */}
+        <div className="p-3 bg-black/20 border-t border-white/10 space-y-2.5 flex-shrink-0">
+          <div className="bg-white/10 backdrop-blur border border-white/15 rounded-xl p-2.5">
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <p className="text-[10px] uppercase font-bold text-white/80 tracking-wider">
+                {isAdmin ? "Mode Akses Administrator" : "Kelompok Aktif"}
+              </p>
+            </div>
+            
+            {isAdmin ? (
+              <div className="space-y-1">
+                <span className="text-xs font-bold text-white block bg-indigo-900/80 px-2 py-1 rounded-lg border border-indigo-700">
+                  🛡️ Administrator
+                </span>
+                <select
+                  value={activeGroup}
+                  onChange={(e) => setActiveGroup(e.target.value)}
+                  className="w-full bg-slate-900/90 text-white font-semibold text-[11px] rounded-lg p-1 border border-white/20 outline-none cursor-pointer mt-1"
+                >
+                  {ALL_GROUP_NAMES.map(grp => (
+                    <option key={grp} value={grp} className="bg-slate-900 text-white">
+                      Tinjau Mode Siswa: {grp}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <span className="text-xs font-bold text-white block bg-white/15 px-2.5 py-1.5 rounded-lg border border-white/25 truncate">
+                👥 {currentUser.groupName}
+              </span>
+            )}
+          </div>
+
+          <div className="flex gap-1.5">
+            <button 
+              onClick={handleLogout}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 bg-red-900/40 hover:bg-red-800/60 text-red-100 border border-red-500/30 rounded-xl text-xs font-medium transition"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              Keluar
+            </button>
+            <button 
+              onClick={handleResetData}
+              title="Reset Data Lokal"
+              className="p-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl transition text-xs"
+            >
+              ↺
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 h-full p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full z-10 flex flex-col justify-between print:p-0 print:m-0 print:max-w-none print:overflow-visible">
+        <div className="space-y-6">
+          {/* Dynamic Theme Banner Section */}
+          <div className={`relative rounded-3xl bg-gradient-to-r ${currentTheme.banner} p-6 sm:p-8 border ${currentTheme.border} shadow-sm overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all duration-300 print:hidden`}>
+            <div className="relative z-10 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/40 backdrop-blur border border-slate-900/10 rounded-full text-xs font-semibold text-slate-800 mb-3 shadow-xs">
+                <img src="https://i.ibb.co.com/8gMSjY4F/IMG-20251203-114653.png" alt="Logo SMP YPU" className="w-4 h-4 object-contain" />
+                <span>Kegiatan Kokurikuler SMP YPU Bandung 2026</span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${currentTheme.badge}`}>
+                  Tema: {currentTheme.name}
+                </span>
+              </div>
+              <h2 className={`text-2xl sm:text-3xl font-black ${currentTheme.titleText} tracking-tight`}>
+                {isAdmin ? getAdminMenuTitle(activeMenu) : "Dashboard Kelompok"}
+              </h2>
+              <p className={`text-sm sm:text-base ${currentTheme.subText} mt-1 font-medium`}>
+                {isAdmin ? getAdminMenuSubtitle(activeMenu) : `${getMenuTitle(activeMenu)} — ${getMenuSubtitle(activeMenu, groupInfo.groupName)}`}
+              </p>
+            </div>
+            <div className="hidden sm:flex items-center justify-center bg-white/40 backdrop-blur p-3 rounded-2xl border border-slate-900/10 shadow-xs flex-shrink-0">
+              <img src="https://i.ibb.co.com/8gMSjY4F/IMG-20251203-114653.png" alt="Logo SMP YPU Bandung" className="w-14 h-14 object-contain" />
+            </div>
+          </div>
+
+          {/* Student Views */}
+          {activeMenu === 'home' && <HomeView groupInfo={groupInfo} presensiList={presensiList} lkpdList={lkpdList} journalList={journalList} theme={currentTheme} />}
+          {activeMenu === 'struktur' && <StrukturView groupInfo={groupInfo} onSaveStructure={handleUpdateStructure} error={orgError} setError={setOrgError} theme={currentTheme} />}
+          {activeMenu === 'presensi' && <PresensiView groupInfo={groupInfo} presensiList={presensiList} setPresensiList={setPresensiList} notify={showNotification} theme={currentTheme} />}
+          {activeMenu === 'lkpd' && <LkpdView lkpdList={lkpdList} setLkpdList={setLkpdList} activeGroup={groupInfo.groupName} notify={showNotification} theme={currentTheme} />}
+          {activeMenu === 'jurnal' && <JurnalView journalList={journalList} setJournalList={setJournalList} notify={showNotification} theme={currentTheme} />}
+          {activeMenu === 'profil' && <ProfilLulusanView theme={currentTheme} />}
+          {activeMenu === 'mapel' && <MapelView theme={currentTheme} />}
+
+          {/* Admin Views */}
+          {activeMenu === 'admin_ringkasan' && <AdminRingkasanKelompok structuresMap={structuresMap} lkpdList={lkpdList} journalList={journalList} onSelectGroup={(grp) => { setActiveGroup(grp); setActiveMenu('home'); }} theme={currentTheme} />}
+          {activeMenu === 'admin_rekap_struktur' && <AdminRekapStruktur structuresMap={structuresMap} onSelectGroup={(grp) => { setActiveGroup(grp); setActiveMenu('home'); }} theme={currentTheme} />}
+          {activeMenu === 'admin_presensi_harian' && <AdminPresensiHarian presensiList={presensiList} theme={currentTheme} />}
+          {activeMenu === 'admin_rekap_total_presensi' && <AdminRekapTotalKehadiran presensiList={presensiList} theme={currentTheme} />}
+          {activeMenu === 'admin_lkpd_diunggah' && <AdminLkpdDiunggah lkpdList={lkpdList} theme={currentTheme} />}
+          {activeMenu === 'admin_rekap_lkpd' && <AdminRekapPengumpulanLkpd lkpdList={lkpdList} theme={currentTheme} />}
+          {activeMenu === 'admin_jurnal_cetak' && <AdminJurnalCetak journalList={journalList} presensiList={presensiList} theme={currentTheme} />}
+        </div>
+
+        {/* Dashboard Footer */}
+        <footer className={`mt-8 pt-6 border-t ${currentTheme.border} flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-700 pb-2 print:hidden`}>
+          <p className="font-semibold text-slate-700">
+            Created and Designed by <span className={`font-bold ${currentTheme.accentText}`}>@ihsanmsyahid</span>
+          </p>
+          <p className="font-bold text-slate-800">
+            ✨ Dashboard Kokurikuler SMP YPU Bandung
+          </p>
+        </footer>
+      </main>
+    </div>
+  );
+}
+
+function NavItem({ icon, label, active, onClick, theme }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
+        active 
+          ? theme?.navActive || 'bg-white/20 text-white font-bold' 
+          : theme?.navInactive || 'text-white/80 hover:bg-white/10 hover:text-white'
+      }`}
+    >
+      <span className={active ? 'text-white' : theme?.iconColor || 'text-white/70'}>{icon}</span>
+      <span className="truncate text-left">{label}</span>
+    </button>
+  );
+}
+
+function HomeView({ groupInfo, presensiList, lkpdList, journalList, theme }) {
+  const latestPresensi = presensiList.find(p => p.groupName === groupInfo.groupName) || presensiList[presensiList.length - 1];
+  const totalHadirCount = latestPresensi ? latestPresensi.records.filter(r => r.status === 'Hadir').length : 0;
+  const attendancePercentage = groupInfo.members.length > 0 && latestPresensi 
+    ? Math.round((totalHadirCount / groupInfo.members.length) * 100) 
+    : 0;
+
+  const groupLkpdList = lkpdList.filter(l => l.groupName === groupInfo.groupName);
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard 
+          icon={<Users className="w-6 h-6 text-slate-800" />}
+          label="Total Anggota"
+          value={`${groupInfo.members.length} Siswa`}
+          sub="Anggota Terdaftar"
+          theme={theme}
+        />
+        <StatCard 
+          icon={<UserCheck className="w-6 h-6 text-slate-800" />}
+          label="Kehadiran Terakhir"
+          value={`${attendancePercentage}%`}
+          sub={`${totalHadirCount} dari ${groupInfo.members.length} Hadir`}
+          theme={theme}
+        />
+        <StatCard 
+          icon={<FileText className="w-6 h-6 text-slate-800" />}
+          label="LKPD Terkumpul"
+          value={`${groupLkpdList.length} Dokumen`}
+          sub="Siap dinilai pemateri"
+          theme={theme}
+        />
+        <StatCard 
+          icon={<BookOpen className="w-6 h-6 text-slate-800" />}
+          label="Total Jurnal"
+          value={`${journalList.length} Catatan`}
+          sub="Dokumentasi harian"
+          theme={theme}
+        />
+      </div>
+
+      <div className={`${theme.cardBg} rounded-3xl p-6 sm:p-8 border ${theme.border} shadow-sm relative overflow-hidden`}>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b border-slate-900/10">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-800 text-white flex items-center justify-center font-black text-2xl shadow-md border-2 border-white/40">
+              🌲
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-2xl font-black text-slate-900">{groupInfo.groupName}</h3>
+                <span className={`px-3 py-0.5 rounded-full text-xs font-extrabold ${theme.badge}`}>
+                  Aktif
+                </span>
+              </div>
+              <div className="mt-1 space-y-0.5 text-xs text-slate-700">
+                <p className="flex items-center gap-1.5 font-medium">
+                  <GraduationCap className="w-4 h-4 text-slate-800 flex-shrink-0" />
+                  Pembimbing: <strong className="text-slate-900">{groupInfo.pembimbing}</strong>
+                </p>
+                <p className="flex items-center gap-1.5 font-medium">
+                  <Building2 className="w-4 h-4 text-slate-800 flex-shrink-0" />
+                  Ruang Pematerian: <strong className="text-slate-900 px-2 py-0.5 rounded-md border border-slate-900/10">{groupInfo.ruangan}</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className={`${theme.innerCardBg} px-4 py-3 rounded-2xl border ${theme.border} text-xs text-slate-800 max-w-xs space-y-1`}>
+            <div className="font-bold flex items-center gap-1 text-slate-900">
+              <Compass className="w-4 h-4 text-slate-800" />
+              Fokus Proyek Kokurikuler:
+            </div>
+            <p className="text-slate-700 leading-relaxed">
+              "Konservasi Lingkungan Sekolah & Pengolahan Sampah Terpadu Bermutu"
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <Users className="w-4 h-4 text-slate-700" />
+            Daftar Anggota Kelompok ({groupInfo.members.length} Orang)
+          </h4>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {groupInfo.members.map((member) => {
+              const isKetua = groupInfo.ketua && member.name === groupInfo.ketua;
+              const isSekretaris = groupInfo.sekretaris && member.name === groupInfo.sekretaris;
+
+              return (
+                <div 
+                  key={member.id} 
+                  className={`p-4 rounded-2xl border transition-all ${
+                    isKetua 
+                      ? `${theme.accentBg} ${theme.border} ring-2 ring-emerald-500/40` 
+                      : isSekretaris 
+                      ? `${theme.innerCardBg} ${theme.border}` 
+                      : `${theme.innerCardBg} ${theme.border}`
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-slate-800/10 text-slate-900 font-extrabold flex items-center justify-center text-sm border border-slate-900/20">
+                      {member.name.charAt(0)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-slate-900 truncate">{member.name}</p>
+                      <div className="flex items-center gap-2 text-xs text-slate-700 mt-0.5">
+                        <span className="px-1.5 py-0.5 rounded border border-slate-900/20 font-mono text-[10px] text-slate-800">{member.nisn}</span>
+                        <span className="font-bold text-slate-900">{member.kelas}</span>
+                      </div>
+                    </div>
+                    {isKetua && (
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-800 text-white text-[10px] font-bold shadow-xs">
+                        Ketua
+                      </span>
+                    )}
+                    {isSekretaris && (
+                      <span className="px-2 py-0.5 rounded-md bg-teal-800 text-white text-[10px] font-bold shadow-xs">
+                        Sekretaris
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ icon, label, value, sub, theme }) {
+  return (
+    <div className={`${theme.cardBg} ${theme.border} border p-5 rounded-3xl shadow-xs transition-all hover:shadow-md`}>
+      <div className="flex items-center justify-between mb-3">
+        <div className={`p-2.5 ${theme.innerCardBg} rounded-2xl shadow-xs border ${theme.border}`}>
+          {icon}
+        </div>
+      </div>
+      <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">{label}</p>
+      <h4 className="text-2xl font-black text-slate-900 mt-1">{value}</h4>
+      <p className="text-xs text-slate-700 mt-1">{sub}</p>
+    </div>
+  );
+}
+
+function StrukturView({ groupInfo, onSaveStructure, error, setError, theme }) {
+  const [selectedKetua, setSelectedKetua] = useState(groupInfo.ketua || '');
+  const [selectedSekretaris, setSelectedSekretaris] = useState(groupInfo.sekretaris || '');
+
+  useEffect(() => {
+    setSelectedKetua(groupInfo.ketua || '');
+    setSelectedSekretaris(groupInfo.sekretaris || '');
+  }, [groupInfo]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSaveStructure(selectedKetua, selectedSekretaris);
+  };
+
+  const anggotaLain = groupInfo.members.filter(
+    m => m.name !== selectedKetua && m.name !== selectedSekretaris
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm`}>
+        <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
+          <Users className="w-5 h-5 text-slate-800" />
+          Pengaturan Struktur Organisasi Kelompok
+        </h3>
+        <p className="text-xs text-slate-600 mb-6">
+          Pilih Ketua dan Sekretaris dari daftar anggota kelompok. Posisi tidak boleh dirangkap oleh individu yang sama.
+        </p>
+
+        {error && (
+          <div className="mb-4 p-3 rounded-2xl bg-red-200/80 border border-red-300 text-red-950 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-800 block uppercase tracking-wider">
+              Pilih Ketua Kelompok <span className="text-red-600">*</span>
+            </label>
+            <select
+              value={selectedKetua}
+              onChange={(e) => { setSelectedKetua(e.target.value); setError(''); }}
+              className={`w-full p-3 rounded-2xl border ${theme.inputBg} transition text-xs font-medium outline-none`}
+            >
+              <option value="">-- Pilih Ketua Kelompok --</option>
+              {groupInfo.members.map(m => (
+                <option key={m.id} value={m.name}>
+                  {m.name} ({m.kelas}) - NISN: {m.nisn}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-800 block uppercase tracking-wider">
+              Pilih Sekretaris Kelompok <span className="text-red-600">*</span>
+            </label>
+            <select
+              value={selectedSekretaris}
+              onChange={(e) => { setSelectedSekretaris(e.target.value); setError(''); }}
+              className={`w-full p-3 rounded-2xl border ${theme.inputBg} transition text-xs font-medium outline-none`}
+            >
+              <option value="">-- Pilih Sekretaris Kelompok --</option>
+              {groupInfo.members.map(m => (
+                <option key={m.id} value={m.name}>
+                  {m.name} ({m.kelas}) - NISN: {m.nisn}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="md:col-span-2 flex justify-end">
+            <button
+              type="submit"
+              className={`px-6 py-3 ${theme.primaryBtn} rounded-2xl font-bold text-xs shadow-sm transition flex items-center gap-2`}
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              Tetapkan Struktur Organisasi
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div className={`${theme.cardBg} p-6 sm:p-8 rounded-3xl border ${theme.border} shadow-sm`}>
+        <h3 className="text-lg font-bold text-slate-900 mb-6 text-center">
+          Bagan Struktur Organisasi {groupInfo.groupName}
+        </h3>
+
+        <div className="flex flex-col items-center space-y-6">
+          <div className="w-full max-w-sm">
+            <div className="bg-slate-900 text-white p-4 rounded-2xl text-center shadow-md border-2 border-slate-700 relative">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300 block">Guru Pembimbing</span>
+              <h4 className="font-extrabold text-base">{groupInfo.pembimbing}</h4>
+              <p className="text-[10px] text-slate-300 mt-0.5">{groupInfo.ruangan}</p>
+            </div>
+            <div className="w-0.5 h-6 bg-slate-500 mx-auto"></div>
+          </div>
+
+          <div className="w-full max-w-sm">
+            <div className={`p-4 rounded-2xl text-center shadow-md border-2 ${
+              selectedKetua ? `${theme.primaryBtn} border-slate-700` : 'bg-slate-200/60 text-slate-500 border-dashed border-slate-400'
+            }`}>
+              <span className="text-[10px] font-bold uppercase tracking-widest block opacity-80">Ketua Kelompok</span>
+              <h4 className="font-extrabold text-base">{selectedKetua || '(Belum Ditentukan)'}</h4>
+            </div>
+            <div className="w-0.5 h-6 bg-slate-500 mx-auto"></div>
+          </div>
+
+          <div className="w-full max-w-sm">
+            <div className={`p-4 rounded-2xl text-center shadow-md border-2 ${
+              selectedSekretaris ? `${theme.primaryBtn} border-slate-700` : 'bg-slate-200/60 text-slate-500 border-dashed border-slate-400'
+            }`}>
+              <span className="text-[10px] font-bold uppercase tracking-widest block opacity-80">Sekretaris</span>
+              <h4 className="font-extrabold text-base">{selectedSekretaris || '(Belum Ditentukan)'}</h4>
+            </div>
+            <div className="w-0.5 h-6 bg-slate-500 mx-auto"></div>
+          </div>
+
+          <div className="w-full max-w-2xl">
+            <div className={`${theme.innerCardBg} p-5 rounded-2xl border-2 ${theme.border} text-center`}>
+              <span className="text-xs font-bold uppercase tracking-widest text-slate-900 block mb-3">
+                Anggota Kelompok ({anggotaLain.length} Siswa)
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {anggotaLain.map(m => (
+                  <div key={m.id} className={`${theme.cardBg} p-2.5 rounded-xl border ${theme.border} shadow-xs text-xs font-medium text-slate-800 flex flex-col`}>
+                    <span className="font-bold text-slate-900">{m.name}</span>
+                    <span className="text-[10px] text-slate-600">{m.kelas} • {m.nisn}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PresensiView({ groupInfo, presensiList, setPresensiList, notify, theme }) {
+  const [activeTab, setActiveTab] = useState('input');
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [filterDate, setFilterDate] = useState('ALL');
+  
+  const [currentAttendance, setCurrentAttendance] = useState(() => {
+    return groupInfo.members.reduce((acc, member) => {
+      acc[member.id] = { status: '', note: '' };
+      return acc;
+    }, {});
+  });
+
+  useEffect(() => {
+    setCurrentAttendance(groupInfo.members.reduce((acc, member) => {
+      acc[member.id] = { status: '', note: '' };
+      return acc;
+    }, {}));
+  }, [groupInfo, selectedDate]);
+
+  const groupPresensiList = useMemo(() => {
+    return presensiList.filter(p => !p.groupName || p.groupName === groupInfo.groupName);
+  }, [presensiList, groupInfo.groupName]);
+
+  const handleStatusChange = (studentId, status) => {
+    setCurrentAttendance(prev => ({
+      ...prev,
+      [studentId]: { ...prev[studentId], status }
+    }));
+  };
+
+  const handleNoteChange = (studentId, note) => {
+    setCurrentAttendance(prev => ({
+      ...prev,
+      [studentId]: { ...prev[studentId], note }
+    }));
+  };
+
+  const handleSavePresensi = (e) => {
+    e.preventDefault();
+
+    const unselected = groupInfo.members.filter(m => !currentAttendance[m.id]?.status);
+    if (unselected.length > 0) {
+      notify(`Mohon pilih status kehadiran untuk seluruh siswa (${unselected.length} siswa belum diisi)!`, 'error');
+      return;
+    }
+
+    const records = groupInfo.members.map(member => ({
+      studentId: member.id,
+      name: member.name,
+      nisn: member.nisn,
+      kelas: member.kelas,
+      status: currentAttendance[member.id].status,
+      note: currentAttendance[member.id].note || ''
+    }));
+
+    const existingIndex = presensiList.findIndex(
+      p => p.date === selectedDate && p.groupName === groupInfo.groupName
+    );
+    
+    if (existingIndex >= 0) {
+      const updated = [...presensiList];
+      updated[existingIndex] = { 
+        id: updated[existingIndex].id, 
+        groupName: groupInfo.groupName,
+        date: selectedDate, 
+        records 
+      };
+      setPresensiList(updated);
+    } else {
+      const newEntry = {
+        id: 'pr-' + Date.now(),
+        groupName: groupInfo.groupName,
+        date: selectedDate,
+        records
+      };
+      setPresensiList([...presensiList, newEntry]);
+    }
+
+    notify(`Presensi ${groupInfo.groupName} tanggal ${selectedDate} berhasil disimpan!`);
+  };
+
+  const filteredHistory = useMemo(() => {
+    if (filterDate === 'ALL') return groupPresensiList;
+    return groupPresensiList.filter(p => p.date === filterDate);
+  }, [groupPresensiList, filterDate]);
+
+  const rekapData = useMemo(() => {
+    const totalSessions = groupPresensiList.length;
+    
+    return groupInfo.members.map(member => {
+      let hadir = 0, sakit = 0, izin = 0, alfa = 0, dispensasi = 0;
+
+      groupPresensiList.forEach(session => {
+        const rec = session.records.find(r => r.nisn === member.nisn || r.name === member.name);
+        if (rec) {
+          if (rec.status === 'Hadir') hadir++;
+          else if (rec.status === 'Sakit') sakit++;
+          else if (rec.status === 'Izin') izin++;
+          else if (rec.status === 'Alfa') alfa++;
+          else if (rec.status === 'Dispensasi') dispensasi++;
+        }
+      });
+
+      const percentage = totalSessions > 0 ? Math.round((hadir / totalSessions) * 100) : 0;
+
+      return {
+        ...member,
+        totalSessions,
+        hadir,
+        sakit,
+        izin,
+        alfa,
+        dispensasi,
+        percentage
+      };
+    });
+  }, [groupInfo, groupPresensiList]);
+
+  return (
+    <div className="space-y-6">
+      <div className={`flex ${theme.cardBg} p-1.5 rounded-2xl border ${theme.border} shadow-xs max-w-md`}>
+        <button
+          onClick={() => setActiveTab('input')}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
+            activeTab === 'input' 
+              ? `${theme.primaryBtn} shadow-xs` 
+              : 'text-slate-700 hover:text-slate-900'
+          }`}
+        >
+          <UserCheck className="w-4 h-4" />
+          Input & Riwayat Presensi
+        </button>
+        <button
+          onClick={() => setActiveTab('rekap')}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
+            activeTab === 'rekap' 
+              ? `${theme.primaryBtn} shadow-xs` 
+              : 'text-slate-700 hover:text-slate-900'
+          }`}
+        >
+          <BarChart3 className="w-4 h-4" />
+          Rekap Total Kehadiran
+        </button>
+      </div>
+
+      {activeTab === 'input' ? (
+        <>
+          <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm`}>
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 pb-4 border-b border-slate-900/10">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <UserCheck className="w-5 h-5 text-slate-800" />
+                  Form Presensi Kehadiran Siswa — {groupInfo.groupName}
+                </h3>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Pilih status kehadiran masing-masing anggota kelompok ({groupInfo.members.length} siswa).
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-slate-800" />
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className={`p-2.5 rounded-xl border ${theme.inputBg} text-xs font-semibold outline-none`}
+                />
+              </div>
+            </div>
+
+            <form onSubmit={handleSavePresensi}>
+              <div className="overflow-x-auto rounded-2xl border border-slate-900/10 mb-4">
+                <table className="w-full text-left text-xs">
+                  <thead className={`${theme.tableHeaderBg} uppercase font-bold text-[11px] border-b ${theme.border}`}>
+                    <tr>
+                      <th className="p-3.5">Nama Siswa</th>
+                      <th className="p-3.5">NISN</th>
+                      <th className="p-3.5">Kelas</th>
+                      <th className="p-3.5">Status Kehadiran <span className="text-red-600">*</span></th>
+                      <th className="p-3.5">Keterangan</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-900/10">
+                    {groupInfo.members.map((member) => {
+                      const status = currentAttendance[member.id]?.status || '';
+                      return (
+                        <tr key={member.id} className="hover:bg-black/5 transition">
+                          <td className="p-3.5 font-bold text-slate-900">{member.name}</td>
+                          <td className="p-3.5 text-slate-600 font-mono">{member.nisn}</td>
+                          <td className="p-3.5 font-semibold text-slate-800">{member.kelas}</td>
+                          <td className="p-3.5">
+                            <div className="flex flex-wrap gap-1.5">
+                              {['Hadir', 'Sakit', 'Izin', 'Alfa', 'Dispensasi'].map((st) => (
+                                <button
+                                  key={st}
+                                  type="button"
+                                  onClick={() => handleStatusChange(member.id, st)}
+                                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition ${
+                                    status === st 
+                                      ? getStatusBadgeColor(st) + ' ring-2 ring-emerald-500/40' 
+                                      : `${theme.innerCardBg} text-slate-800 border-slate-900/10 hover:bg-black/10`
+                                  }`}
+                                >
+                                  {st}
+                                </button>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="p-3.5">
+                            <input
+                              type="text"
+                              placeholder="Opsional"
+                              value={currentAttendance[member.id]?.note || ''}
+                              onChange={(e) => handleNoteChange(member.id, e.target.value)}
+                              className={`w-full p-2 rounded-xl border ${theme.inputBg} text-xs outline-none`}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className={`px-6 py-2.5 ${theme.primaryBtn} rounded-2xl font-bold text-xs shadow-sm transition flex items-center gap-2`}
+                >
+                  <Check className="w-4 h-4" />
+                  Simpan Presensi ({selectedDate})
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm`}>
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-slate-800" />
+                  Riwayat Presensi Per Tanggal — {groupInfo.groupName}
+                </h3>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Menampilkan riwayat presensi yang telah dicatat untuk kelompok {groupInfo.groupName}.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-slate-600" />
+                <select
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  className={`p-2 rounded-xl border ${theme.inputBg} text-xs font-medium outline-none`}
+                >
+                  <option value="ALL">Semua Tanggal ({groupPresensiList.length})</option>
+                  {groupPresensiList.map(p => (
+                    <option key={p.id} value={p.date}>Tgl: {p.date}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {filteredHistory.length === 0 ? (
+                <div className={`text-center py-8 ${theme.innerCardBg} rounded-2xl border border-dashed ${theme.border}`}>
+                  <UserCheck className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                  <p className="text-xs font-medium text-slate-600">Belum ada riwayat presensi yang tercatat untuk {groupInfo.groupName}.</p>
+                </div>
+              ) : (
+                filteredHistory.map((item) => (
+                  <div key={item.id} className={`p-4 rounded-2xl border ${theme.border} ${theme.innerCardBg} space-y-3`}>
+                    <div className="flex justify-between items-center border-b border-slate-900/10 pb-2">
+                      <span className={`font-bold text-xs ${theme.badge} px-3 py-1 rounded-full border`}>
+                        📅 Tanggal Kegiatan: {item.date}
+                      </span>
+                      <span className="text-[11px] text-slate-700 font-medium">
+                        Hadir: {item.records.filter(r => r.status === 'Hadir').length} / {item.records.length} Siswa
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                      {item.records.map((r) => (
+                        <div key={r.studentId} className={`${theme.cardBg} p-2 rounded-xl border ${theme.border} text-xs`}>
+                          <p className="font-bold text-slate-900 truncate">{r.name}</p>
+                          <p className="text-[10px] text-slate-600 font-mono">{r.nisn}</p>
+                          <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold ${getStatusBadgeColor(r.status)}`}>
+                            {r.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm space-y-6`}>
+          <div className="flex justify-between items-center pb-4 border-b border-slate-900/10">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <PieChart className="w-5 h-5 text-slate-800" />
+                Rekap Akumulasi Kehadiran — {groupInfo.groupName}
+              </h3>
+              <p className="text-xs text-slate-600 mt-0.5">
+                Total akumulasi berdasarkan {groupPresensiList.length} sesi pertemuan presensi kelompok {groupInfo.groupName}.
+              </p>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-slate-900/10">
+            <table className="w-full text-left text-xs">
+              <thead className={`${theme.tableHeaderBg} uppercase font-bold text-[11px] border-b ${theme.border}`}>
+                <tr>
+                  <th className="p-3.5">Nama Siswa</th>
+                  <th className="p-3.5">NISN / Kelas</th>
+                  <th className="p-3.5 text-center">Hadir</th>
+                  <th className="p-3.5 text-center">Sakit</th>
+                  <th className="p-3.5 text-center">Izin</th>
+                  <th className="p-3.5 text-center">Alfa</th>
+                  <th className="p-3.5 text-center">Dispensasi</th>
+                  <th className="p-3.5 text-center">% Kehadiran</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-900/10">
+                {rekapData.map((s) => (
+                  <tr key={s.id} className="hover:bg-black/5 transition">
+                    <td className="p-3.5 font-bold text-slate-900">{s.name}</td>
+                    <td className="p-3.5 text-slate-600 font-mono">
+                      {s.nisn} <span className="font-sans text-slate-900 font-bold ml-1">({s.kelas})</span>
+                    </td>
+                    <td className="p-3.5 text-center font-bold text-emerald-800">{s.hadir}</td>
+                    <td className="p-3.5 text-center font-bold text-amber-800">{s.sakit}</td>
+                    <td className="p-3.5 text-center font-bold text-sky-800">{s.izin}</td>
+                    <td className="p-3.5 text-center font-bold text-rose-800">{s.alfa}</td>
+                    <td className="p-3.5 text-center font-bold text-purple-800">{s.dispensasi}</td>
+                    <td className="p-3.5 text-center">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-black border ${
+                        s.percentage >= 90 
+                          ? 'bg-emerald-200 text-emerald-950 border-emerald-300' 
+                          : 'bg-red-200 text-red-950 border-red-300 font-bold'
+                      }`}>
+                        {s.percentage}%
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function getStatusBadgeColor(status) {
+  switch (status) {
+    case 'Hadir': return 'bg-emerald-200 text-emerald-950 border-emerald-300';
+    case 'Sakit': return 'bg-amber-200 text-amber-950 border-amber-300';
+    case 'Izin': return 'bg-sky-200 text-sky-950 border-sky-300';
+    case 'Alfa': return 'bg-rose-200 text-rose-950 border-rose-300';
+    case 'Dispensasi': return 'bg-purple-200 text-purple-950 border-purple-300';
+    default: return 'bg-slate-200 text-slate-700 border-slate-300';
+  }
+}
+
+function LkpdView({ lkpdList, setLkpdList, activeGroup, notify, theme }) {
+  const [instructor, setInstructor] = useState('');
+  const [dateGiven, setDateGiven] = useState('');
+  const [lkpdNum, setLkpdNum] = useState('');
+  const [title, setTitle] = useState('');
+  const [notes, setNotes] = useState('');
+  
+  const [lkpdPhotos, setLkpdPhotos] = useState([]);
+  const [docPhotos, setDocPhotos] = useState([]);
+
+  const [previewModal, setPreviewModal] = useState({ isOpen: false, title: '', url: '', type: 'image' });
+
+  const handleLkpdPhotosChange = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const filesArr = Array.from(e.target.files);
+      const newPhotoObjects = filesArr.map(file => ({
+        id: 'lkpd-img-' + Math.random().toString(36).substr(2, 9),
+        name: file.name,
+        url: URL.createObjectURL(file)
+      }));
+      setLkpdPhotos(prev => [...prev, ...newPhotoObjects]);
+    }
+  };
+
+  const handleDocPhotosChange = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const filesArr = Array.from(e.target.files);
+      const newPhotoObjects = filesArr.map(file => ({
+        id: 'doc-img-' + Math.random().toString(36).substr(2, 9),
+        name: file.name,
+        url: URL.createObjectURL(file)
+      }));
+      setDocPhotos(prev => [...prev, ...newPhotoObjects]);
+    }
+  };
+
+  const removeLkpdPhoto = (id) => {
+    setLkpdPhotos(lkpdPhotos.filter(p => p.id !== id));
+  };
+
+  const removeDocPhoto = (id) => {
+    setDocPhotos(docPhotos.filter(p => p.id !== id));
+  };
+
+  const handleUploadLKPD = (e) => {
+    e.preventDefault();
+    if (!instructor || !dateGiven || !lkpdNum || !title) {
+      notify('Mohon isi seluruh field wajib termasuk Pemateri dan Nomor LKPD!', 'error');
+      return;
+    }
+
+    if (lkpdPhotos.length === 0) {
+      notify('Mohon unggah minimal 1 Foto Lembar LKPD!', 'error');
+      return;
+    }
+
+    const newLkpd = {
+      id: 'lkpd-' + Date.now(),
+      groupName: activeGroup,
+      number: parseInt(lkpdNum) || lkpdList.length + 1,
+      title,
+      instructor,
+      date: dateGiven,
+      lkpdPhotos: lkpdPhotos,
+      docPhotos: docPhotos,
+      status: 'Sedang Diperiksa',
+      notes: notes || 'Telah diunggah oleh kelompok.'
+    };
+
+    setLkpdList([newLkpd, ...lkpdList]);
+    
+    setInstructor('');
+    setDateGiven('');
+    setLkpdNum('');
+    setTitle('');
+    setNotes('');
+    setLkpdPhotos([]);
+    setDocPhotos([]);
+    notify('LKPD & Dokumentasi berhasil diupload!');
+  };
+
+  const handleDeleteLkpd = (id) => {
+    setLkpdList(lkpdList.filter(item => item.id !== id));
+    notify('Dokumen LKPD berhasil dihapus!');
+  };
+
+  const groupLkpdList = lkpdList.filter(l => l.groupName === activeGroup);
+
+  return (
+    <div className="space-y-6">
+      {previewModal.isOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className={`${theme.cardBg} w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden border ${theme.border} flex flex-col max-h-[85vh]`}>
+            <div className={`p-4 ${theme.mobileHeaderBg} text-white flex justify-between items-center`}>
+              <div className="flex items-center gap-2 min-w-0 pr-2">
+                <Image className="w-5 h-5 text-emerald-300 flex-shrink-0" />
+                <h4 className="font-bold text-sm truncate">{previewModal.title}</h4>
+              </div>
+              <button 
+                onClick={() => setPreviewModal({ isOpen: false, title: '', url: '', type: 'image' })}
+                className="p-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className={`p-4 flex-1 overflow-auto ${theme.innerCardBg} flex items-center justify-center min-h-[260px]`}>
+              <img 
+                src={previewModal.url} 
+                alt={previewModal.title} 
+                className="max-h-[60vh] max-w-full object-contain rounded-2xl shadow-sm border border-slate-900/10" 
+              />
+            </div>
+
+            <div className={`p-4 ${theme.cardBg} border-t border-slate-900/10 flex justify-end gap-2`}>
+              <a
+                href={previewModal.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`px-4 py-2 ${theme.innerCardBg} text-slate-900 rounded-xl font-bold text-xs transition flex items-center gap-1.5`}
+              >
+                Buka di Tab Baru
+              </a>
+              <a
+                href={previewModal.url}
+                download={previewModal.title}
+                className={`px-4 py-2 ${theme.primaryBtn} rounded-xl font-bold text-xs transition flex items-center gap-1.5`}
+              >
+                <Download className="w-4 h-4" />
+                Unduh Foto
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm`}>
+        <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
+          <UploadCloud className="w-5 h-5 text-slate-800" />
+          Form Pengumpulan LKPD & Dokumentasi
+        </h3>
+        <p className="text-xs text-slate-600 mb-6">
+          Isi informasi materi, pilih pemateri, serta unggah foto lembar LKPD dan foto dokumentasi kegiatan (Format Gambar JPG/PNG, bisa lebih dari 1 foto).
+        </p>
+
+        <form onSubmit={handleUploadLKPD} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-xs font-bold text-slate-800 block mb-1">
+              Nama Pemateri / Instruktur <span className="text-red-600">*</span>
+            </label>
+            <select
+              value={instructor}
+              onChange={(e) => setInstructor(e.target.value)}
+              required
+              className={`w-full p-2.5 rounded-xl border ${theme.inputBg} text-xs font-medium outline-none`}
+            >
+              <option value="">-- Pilih Nama Pemateri --</option>
+              {INSTRUCTORS.map((inst, idx) => (
+                <option key={idx} value={inst}>{inst}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-800 block mb-1">
+              Tanggal Materi Diberikan <span className="text-red-600">*</span>
+            </label>
+            <input
+              type="date"
+              value={dateGiven}
+              onChange={(e) => setDateGiven(e.target.value)}
+              required
+              className={`w-full p-2.5 rounded-xl border ${theme.inputBg} text-xs outline-none`}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-800 block mb-1">
+              Urutan LKPD Ke- (Manual) <span className="text-red-600">*</span>
+            </label>
+            <input
+              type="number"
+              placeholder="Ketik angka urutan (misal: 1, 2, 3)"
+              value={lkpdNum}
+              onChange={(e) => setLkpdNum(e.target.value)}
+              required
+              min="1"
+              className={`w-full p-2.5 rounded-xl border ${theme.inputBg} text-xs outline-none`}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-800 block mb-1">
+              Judul / Topik LKPD <span className="text-red-600">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Contoh: Observasi Pengolahan Kompos Takakura"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className={`w-full p-2.5 rounded-xl border ${theme.inputBg} text-xs outline-none`}
+            />
+          </div>
+
+          {/* Section 1: Multiple LKPD Photos */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-800 block">
+              1. Upload Foto Lembar LKPD (Bisa lebih dari 1 Foto JPG/PNG) <span className="text-red-600">*</span>
+            </label>
+            <div className={`border-2 border-dashed ${theme.border} rounded-2xl p-3 ${theme.innerCardBg} text-center hover:opacity-90 transition relative`}>
+              <input 
+                type="file" 
+                accept="image/jpeg,image/png,image/jpg"
+                multiple
+                onChange={handleLkpdPhotosChange} 
+                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+              />
+              <Image className="w-6 h-6 text-slate-800 mx-auto mb-1" />
+              <p className="text-xs font-bold text-slate-900 truncate">
+                Klik / Seret foto lembar LKPD di sini
+              </p>
+            </div>
+
+            {lkpdPhotos.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                {lkpdPhotos.map(photo => (
+                  <div key={photo.id} className="relative rounded-xl overflow-hidden border border-slate-900/20 group">
+                    <img src={photo.url} alt="LKPD" className="w-full h-16 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeLkpdPhoto(photo.id)}
+                      className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5 opacity-90 hover:opacity-100"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Section 2: Multiple Documentation Photos */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-800 block">
+              2. Upload Foto Dokumentasi Kegiatan (Bisa lebih dari 1 Foto JPG/PNG)
+            </label>
+            <div className={`border-2 border-dashed ${theme.border} rounded-2xl p-3 ${theme.innerCardBg} text-center hover:opacity-90 transition relative`}>
+              <input 
+                type="file" 
+                accept="image/jpeg,image/png,image/jpg"
+                multiple
+                onChange={handleDocPhotosChange} 
+                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+              />
+              <Image className="w-6 h-6 text-slate-800 mx-auto mb-1" />
+              <p className="text-xs font-bold text-slate-900 truncate">
+                Klik / Seret foto dokumentasi di sini
+              </p>
+            </div>
+
+            {docPhotos.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                {docPhotos.map(photo => (
+                  <div key={photo.id} className="relative rounded-xl overflow-hidden border border-slate-900/20 group">
+                    <img src={photo.url} alt="Dokumentasi" className="w-full h-16 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeDocPhoto(photo.id)}
+                      className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5 opacity-90 hover:opacity-100"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="text-xs font-bold text-slate-800 block mb-1">
+              Catatan Tambahan
+            </label>
+            <textarea
+              rows="2"
+              placeholder="Tambahkan catatan ringkas hasil pengerjaan..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className={`w-full p-2.5 rounded-xl border ${theme.inputBg} text-xs outline-none`}
+            ></textarea>
+          </div>
+
+          <div className="md:col-span-2 flex justify-end">
+            <button
+              type="submit"
+              className={`px-6 py-2.5 ${theme.primaryBtn} rounded-2xl font-bold text-xs shadow-sm transition flex items-center gap-2`}
+            >
+              <UploadCloud className="w-4 h-4" />
+              Simpan & Upload LKPD
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm`}>
+        <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <FileText className="w-5 h-5 text-slate-800" />
+          Daftar LKPD Terunggah ({groupLkpdList.length})
+        </h3>
+
+        {groupLkpdList.length === 0 ? (
+          <div className={`text-center py-8 ${theme.innerCardBg} rounded-2xl border border-dashed ${theme.border}`}>
+            <FileText className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+            <p className="text-xs font-medium text-slate-600">Belum ada dokumen LKPD terunggah untuk {activeGroup}.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {groupLkpdList.map((item) => (
+              <div key={item.id} className={`p-5 rounded-2xl border ${theme.border} ${theme.innerCardBg} transition space-y-3 relative`}>
+                <div className="flex justify-between items-start gap-2">
+                  <span className={`px-3 py-1 rounded-full ${theme.badge} font-extrabold text-xs border`}>
+                    LKPD #{item.number}
+                  </span>
+                  
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-200 text-emerald-950 border border-emerald-300">
+                      {item.status}
+                    </span>
+
+                    <button
+                      onClick={() => handleDeleteLkpd(item.id)}
+                      className="p-1.5 rounded-lg bg-red-200 text-red-900 hover:bg-red-300 transition"
+                      title="Hapus LKPD Ini"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-sm text-slate-900">{item.title}</h4>
+                  <p className="text-xs text-slate-700 mt-1">Pemateri: <strong className="text-slate-900">{item.instructor}</strong></p>
+                  <p className="text-xs text-slate-600">Tanggal Diberikan: {item.date}</p>
+                </div>
+
+                {/* LKPD Photos List */}
+                <div className={`${theme.cardBg} p-3 rounded-xl border ${theme.border} space-y-2`}>
+                  <p className="text-[11px] font-bold text-slate-900 flex items-center gap-1">
+                    <Image className="w-3.5 h-3.5 text-slate-800" />
+                    Foto Lembar LKPD ({item.lkpdPhotos?.length || 0} Foto):
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {item.lkpdPhotos?.map((photo, pIdx) => (
+                      <div 
+                        key={pIdx}
+                        onClick={() => setPreviewModal({ isOpen: true, title: photo.name, url: photo.url, type: 'image' })}
+                        className="relative rounded-lg overflow-hidden border border-slate-900/20 max-h-20 cursor-pointer"
+                      >
+                        <img src={photo.url} alt="LKPD" className="w-full object-cover h-20 hover:scale-105 transition" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Documentation Photos List */}
+                {item.docPhotos && item.docPhotos.length > 0 && (
+                  <div className={`${theme.cardBg} p-3 rounded-xl border ${theme.border} space-y-2`}>
+                    <p className="text-[11px] font-bold text-slate-900 flex items-center gap-1">
+                      <Image className="w-3.5 h-3.5 text-slate-800" />
+                      Foto Dokumentasi ({item.docPhotos.length} Foto):
+                    </p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {item.docPhotos.map((photo, pIdx) => (
+                        <div 
+                          key={pIdx}
+                          onClick={() => setPreviewModal({ isOpen: true, title: photo.name, url: photo.url, type: 'image' })}
+                          className="relative rounded-lg overflow-hidden border border-slate-900/20 max-h-20 cursor-pointer"
+                        >
+                          <img src={photo.url} alt="Dokumentasi" className="w-full object-cover h-20 hover:scale-105 transition" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {item.notes && (
+                  <p className={`text-xs text-slate-700 ${theme.innerCardBg} p-2.5 rounded-xl border ${theme.border} italic`}>
+                    "{item.notes}"
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function JurnalView({ journalList, setJournalList, notify, theme }) {
+  const [date, setDate] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [instructor, setInstructor] = useState('');
+  const [topic, setTopic] = useState('');
+  const [summary, setSummary] = useState('');
+
+  const handleAddJournal = (e) => {
+    e.preventDefault();
+    if (!date || !startTime || !endTime || !instructor || !summary) {
+      notify('Mohon lengkapi seluruh bidang wajib termasuk nama Pemateri!', 'error');
+      return;
+    }
+
+    const newEntry = {
+      id: 'jrn-' + Date.now(),
+      date,
+      startTime,
+      endTime,
+      instructor,
+      topic: topic || 'Kegiatan Rutin Kokurikuler',
+      summary
+    };
+
+    setJournalList([newEntry, ...journalList]);
+
+    setDate('');
+    setStartTime('');
+    setEndTime('');
+    setInstructor('');
+    setTopic('');
+    setSummary('');
+    notify('Jurnal kegiatan berhasil disimpan!');
+  };
+
+  const handleDeleteJournal = (id) => {
+    setJournalList(journalList.filter(item => item.id !== id));
+    notify('Jurnal kegiatan berhasil dihapus!');
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm`}>
+        <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
+          <BookOpen className="w-5 h-5 text-slate-800" />
+          Input Jurnal Harian Kegiatan Kokurikuler
+        </h3>
+        <p className="text-xs text-slate-600 mb-6">
+          Catat aktivitas harian kelompok, waktu pelaksanaan, serta ringkasan materi dari pemateri.
+        </p>
+
+        <form onSubmit={handleAddJournal} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="text-xs font-bold text-slate-800 block mb-1">
+              Tanggal Kegiatan <span className="text-red-600">*</span>
+            </label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+              className={`w-full p-2.5 rounded-xl border ${theme.inputBg} text-xs outline-none`}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-800 block mb-1">
+              Jam Mulai <span className="text-red-600">*</span>
+            </label>
+            <input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              required
+              className={`w-full p-2.5 rounded-xl border ${theme.inputBg} text-xs outline-none`}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-800 block mb-1">
+              Jam Selesai <span className="text-red-600">*</span>
+            </label>
+            <input
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              required
+              className={`w-full p-2.5 rounded-xl border ${theme.inputBg} text-xs outline-none`}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-800 block mb-1">
+              Nama Pemateri <span className="text-red-600">*</span>
+            </label>
+            <select
+              value={instructor}
+              onChange={(e) => setInstructor(e.target.value)}
+              required
+              className={`w-full p-2.5 rounded-xl border ${theme.inputBg} text-xs font-medium outline-none`}
+            >
+              <option value="">-- Pilih Nama Pemateri --</option>
+              {INSTRUCTORS.map((inst, idx) => (
+                <option key={idx} value={inst}>{inst}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="text-xs font-bold text-slate-800 block mb-1">
+              Topik / Judul Pembahasan
+            </label>
+            <input
+              type="text"
+              placeholder="Contoh: Teknik Komposting Takakura & Pengolahan Sampah"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              className={`w-full p-2.5 rounded-xl border ${theme.inputBg} text-xs outline-none`}
+            />
+          </div>
+
+          <div className="md:col-span-3">
+            <label className="text-xs font-bold text-slate-800 block mb-1">
+              Resume / Ringkasan Materi & Hasil Kegiatan <span className="text-red-600">*</span>
+            </label>
+            <textarea
+              rows="3"
+              placeholder="Tuliskan poin-poin penting yang dipelajari dan dikerjakan..."
+              value={summary}
+              onChange={(e) => setSummary(e.target.value)}
+              required
+              className={`w-full p-2.5 rounded-xl border ${theme.inputBg} text-xs outline-none`}
+            ></textarea>
+          </div>
+
+          <div className="md:col-span-3 flex justify-end">
+            <button
+              type="submit"
+              className={`px-6 py-2.5 ${theme.primaryBtn} rounded-2xl font-bold text-xs shadow-sm transition flex items-center gap-2`}
+            >
+              <Plus className="w-4 h-4" />
+              Simpan Jurnal Kegiatan
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm`}>
+        <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+          <Clock className="w-5 h-5 text-slate-800" />
+          Riwayat Jurnal Kegiatan ({journalList.length})
+        </h3>
+
+        <div className="space-y-6 relative before:absolute before:inset-0 before:left-3.5 before:w-0.5 before:bg-slate-400">
+          {journalList.map((jrn) => (
+            <div key={jrn.id} className="relative pl-8 space-y-2">
+              <div className="absolute left-0 top-1 w-7 h-7 rounded-full bg-slate-800 border-4 border-white shadow-xs flex items-center justify-center text-white text-[10px] font-bold">
+                ✓
+              </div>
+
+              <div className={`p-5 rounded-2xl border ${theme.border} ${theme.innerCardBg} space-y-2 relative`}>
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-900/10 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`font-extrabold text-xs ${theme.badge} px-3 py-1 rounded-full border`}>
+                      📅 {jrn.date}
+                    </span>
+                    <span className="text-xs text-slate-700 font-medium flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5 text-slate-600" />
+                      {jrn.startTime} - {jrn.endTime} WIB
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-slate-800 font-semibold">
+                      Pemateri: <strong className="text-slate-900">{jrn.instructor}</strong>
+                    </span>
+
+                    <button
+                      onClick={() => handleDeleteJournal(jrn.id)}
+                      className="p-1.5 rounded-lg bg-red-200 text-red-900 hover:bg-red-300 transition"
+                      title="Hapus Jurnal Ini"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <h4 className="font-bold text-sm text-slate-900 pt-1">{jrn.topic}</h4>
+                <p className={`text-xs text-slate-800 leading-relaxed ${theme.cardBg} p-3 rounded-xl border ${theme.border}`}>
+                  {jrn.summary}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProfilLulusanView({ theme }) {
+  return (
+    <div className="space-y-6">
+      <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm`}>
+        <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
+          <Award className="w-5 h-5 text-slate-800" />
+          Dimensi & Subdimensi Profil Lulusan
+        </h3>
+        <p className="text-xs text-slate-600 mb-6">
+          Rubrik alur perkembangan kompetensi karakter dan kapabilitas peserta didik dalam program kokurikuler.
+        </p>
+
+        <div className="space-y-8">
+          {PROFIL_LULUSAN_DIMENSI.map((dim) => (
+            <div key={dim.id} className={`border ${theme.border} rounded-3xl overflow-hidden shadow-xs`}>
+              <div className={`bg-slate-900 text-white p-4 flex items-center gap-3`}>
+                <span className="px-3 py-1 rounded-xl bg-white/20 border border-white/30 text-white font-extrabold text-xs">
+                  {dim.code}
+                </span>
+                <h4 className="font-extrabold text-base tracking-wide">{dim.title}</h4>
+              </div>
+
+              <div className={`p-5 ${theme.innerCardBg} space-y-6`}>
+                {dim.subdimensions.map((sub, idx) => (
+                  <div key={idx} className="space-y-4">
+                    <div className="border-l-4 border-slate-900 pl-3">
+                      <h5 className="font-bold text-sm text-slate-900">{sub.name}</h5>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <LevelBox 
+                        label="Berkembang" 
+                        text={sub.levels.BERKEMBANG} 
+                        color="bg-amber-200/70 border-amber-300 text-amber-950" 
+                        tagColor="bg-amber-300 text-amber-950" 
+                      />
+                      <LevelBox 
+                        label="Cakap" 
+                        text={sub.levels.CAKAP} 
+                        color="bg-sky-200/70 border-sky-300 text-sky-950" 
+                        tagColor="bg-sky-300 text-sky-950" 
+                      />
+                      <LevelBox 
+                        label="Mahir" 
+                        text={sub.levels.MAHIR} 
+                        color="bg-emerald-200/70 border-emerald-300 text-emerald-950" 
+                        tagColor="bg-emerald-300 text-emerald-950" 
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LevelBox({ label, text, color, tagColor }) {
+  return (
+    <div className={`p-4 rounded-2xl border ${color} space-y-2 flex flex-col justify-between`}>
+      <div>
+        <span className={`inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider mb-1.5 ${tagColor}`}>
+          {label}
+        </span>
+        <p className="text-xs leading-relaxed font-normal">{text}</p>
+      </div>
+    </div>
+  );
+}
+
+function MapelView({ theme }) {
+  return (
+    <div className="space-y-6">
+      <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm`}>
+        <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
+          <BookOpen className="w-5 h-5 text-slate-800" />
+          Mata Pelajaran Terintegrasi Kokurikuler
+        </h3>
+        <p className="text-xs text-slate-600 mb-6">
+          Daftar mata pelajaran yang terlibat, fokus aktivitas pembelajaran, serta keterkaitannya dengan tema Kepemimpinan & Karakter.
+        </p>
+
+        <div className="space-y-6">
+          {INTEGRATED_SUBJECTS.map((sub) => (
+            <div key={sub.id} className={`p-6 rounded-3xl border ${theme.border} ${theme.innerCardBg} transition space-y-4`}>
+              <div className="flex items-center gap-3 border-b border-slate-900/10 pb-3">
+                <span className={`text-2xl p-2 ${theme.cardBg} rounded-2xl shadow-xs border ${theme.border}`}>{sub.icon}</span>
+                <div>
+                  <h4 className="font-extrabold text-base text-slate-900">{sub.name}</h4>
+                  <span className={`inline-block mt-0.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold border ${sub.badgeColor}`}>
+                    Kode Mapel: {sub.code}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={`${theme.cardBg} p-4 rounded-2xl border ${theme.border} space-y-2`}>
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-900 block flex items-center gap-1.5">
+                    🎯 Fokus Kegiatan (Aktivitas Pembelajaran)
+                  </span>
+                  <ul className="space-y-1.5">
+                    {sub.activities.map((act, idx) => (
+                      <li key={idx} className="text-xs text-slate-800 flex items-start gap-2 leading-relaxed">
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-900 mt-1.5 flex-shrink-0"></span>
+                        <span>{act}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className={`${theme.cardBg} p-4 rounded-2xl border ${theme.border} space-y-2`}>
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-900 block flex items-center gap-1.5">
+                    🌟 Keterkaitan dengan Tema (Leadership & Character)
+                  </span>
+                  <p className="text-xs font-extrabold text-slate-900">
+                    {sub.themeTitle}
+                  </p>
+                  <p className="text-xs text-slate-800 leading-relaxed">
+                    {sub.themeRelation}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminRingkasanKelompok({ structuresMap, lkpdList, journalList, onSelectGroup, theme }) {
+  return (
+    <div className="space-y-6">
+      <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm`}>
+        <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
+          <Grid className="w-5 h-5 text-indigo-800" />
+          Ringkasan Seluruh 20 Kelompok Kokurikuler
+        </h3>
+        <p className="text-xs text-slate-600 mb-6">
+          Ringkasan informatif mencakup Ketua Kelompok, jumlah murid, jumlah LKPD, dan jumlah Jurnal kegiatan per kelompok.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {ALL_GROUP_NAMES.map((grp) => {
+            const data = getGroupData(grp);
+            const struct = structuresMap[grp] || { ketua: '', sekretaris: '' };
+            const studentCount = MASTER_STUDENT_DATABASE.filter(s => s.kelompok === grp).length;
+            const groupLkpdCount = lkpdList.filter(l => l.groupName === grp).length;
+            const groupJurnalCount = journalList.filter(j => j.groupName === grp).length;
+
+            return (
+              <div 
+                key={grp} 
+                className={`${theme.innerCardBg} border ${theme.border} p-5 rounded-3xl shadow-xs transition hover:shadow-md flex flex-col justify-between space-y-4`}
+              >
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className={`font-black text-sm ${theme.badge} px-3 py-1 rounded-full border`}>
+                      {grp}
+                    </span>
+                    <span className={`text-[10px] font-bold text-slate-900 ${theme.cardBg} px-2 py-0.5 rounded-md border ${theme.border}`}>
+                      {studentCount} Siswa
+                    </span>
+                  </div>
+
+                  <div>
+                    <p className="text-[11px] text-slate-600 font-medium">Ketua Kelompok:</p>
+                    <p className="text-xs font-extrabold text-slate-900 truncate">
+                      {struct.ketua ? `👤 ${struct.ketua}` : <span className="text-amber-800 font-semibold italic">Belum ditentukan</span>}
+                    </p>
+                  </div>
+
+                  <div className="text-[11px] text-slate-700 space-y-0.5 pt-1 border-t border-slate-900/10">
+                    <p className="truncate">Pembimbing: <strong className="text-slate-900">{data.pembimbing}</strong></p>
+                    <p className="truncate">Ruangan: <strong className="text-slate-900">{data.ruangan}</strong></p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-900/10 text-center">
+                  <div className={`${theme.cardBg} p-2 rounded-xl border ${theme.border}`}>
+                    <span className="text-[10px] font-bold text-slate-600 block uppercase">LKPD</span>
+                    <span className="text-base font-black text-slate-900">{groupLkpdCount}</span>
+                  </div>
+                  <div className={`${theme.cardBg} p-2 rounded-xl border ${theme.border}`}>
+                    <span className="text-[10px] font-bold text-slate-600 block uppercase">Jurnal</span>
+                    <span className="text-base font-black text-slate-900">{groupJurnalCount}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => onSelectGroup(grp)}
+                  className={`w-full py-2 ${theme.primaryBtn} font-bold rounded-xl text-xs transition shadow-xs flex items-center justify-center gap-1.5`}
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  Buka Detail Mode Siswa
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminRekapStruktur({ structuresMap, onSelectGroup, theme }) {
+  return (
+    <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm space-y-6`}>
+      <div>
+        <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <BarChart3 className="w-5 h-5 text-indigo-800" />
+          Rekapitulasi Struktur Organisasi Seluruh 20 Kelompok
+        </h3>
+        <p className="text-xs text-slate-600 mt-0.5">
+          Pantau penetapan posisi Ketua dan Sekretaris yang telah ditentukan oleh masing-masing kelompok.
+        </p>
+      </div>
+
+      <div className="overflow-x-auto rounded-2xl border border-indigo-300">
+        <table className="w-full text-left text-xs">
+          <thead className={`${theme.tableHeaderBg} uppercase font-bold text-[11px] border-b ${theme.border}`}>
+            <tr>
+              <th className="p-3.5">Nama Kelompok</th>
+              <th className="p-3.5">Guru Pembimbing</th>
+              <th className="p-3.5">Ruangan Pematerian</th>
+              <th className="p-3.5">Ketua Kelompok</th>
+              <th className="p-3.5">Sekretaris</th>
+              <th className="p-3.5 text-center">Status Penetapan</th>
+              <th className="p-3.5 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-900/10">
+            {ALL_GROUP_NAMES.map((grp) => {
+              const data = getGroupData(grp);
+              const struct = structuresMap[grp] || { ketua: '', sekretaris: '' };
+              const isSet = struct.ketua && struct.sekretaris;
+
+              return (
+                <tr key={grp} className="hover:bg-black/5 transition">
+                  <td className="p-3.5 font-bold text-slate-900">{grp}</td>
+                  <td className="p-3.5 text-slate-800 font-medium">{data.pembimbing}</td>
+                  <td className="p-3.5 text-slate-700 font-medium">{data.ruangan}</td>
+                  <td className="p-3.5 font-bold text-slate-900">
+                    {struct.ketua ? (
+                      <span className="text-slate-900">👤 {struct.ketua}</span>
+                    ) : (
+                      <span className="text-amber-800 italic">Belum ditentukan</span>
+                    )}
+                  </td>
+                  <td className="p-3.5 font-bold text-slate-900">
+                    {struct.sekretaris ? (
+                      <span className="text-slate-900">✍️ {struct.sekretaris}</span>
+                    ) : (
+                      <span className="text-amber-800 italic">Belum ditentukan</span>
+                    )}
+                  </td>
+                  <td className="p-3.5 text-center">
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border ${
+                      isSet 
+                        ? 'bg-emerald-200 text-emerald-950 border-emerald-300' 
+                        : 'bg-amber-200 text-amber-950 border-amber-300'
+                    }`}>
+                      {isSet ? 'Lengkap' : 'Belum Lengkap'}
+                    </span>
+                  </td>
+                  <td className="p-3.5 text-center">
+                    <button
+                      onClick={() => onSelectGroup(grp)}
+                      className={`px-3 py-1 ${theme.primaryBtn} font-bold rounded-lg text-[11px] transition`}
+                    >
+                      Lihat Kelompok
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function AdminPresensiHarian({ presensiList, theme }) {
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
+  return (
+    <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm space-y-6`}>
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 pb-4 border-b border-slate-900/10">
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <UserCheck className="w-5 h-5 text-indigo-800" />
+            Presensi Harian Seluruh Murid
+          </h3>
+          <p className="text-xs text-slate-600 mt-0.5">
+            Daftar presensi siswa pada hari yang dipilih, dipisahkan berdasarkan kelompoknya masing-masing.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Calendar className="w-4 h-4 text-indigo-800" />
+          <span className="text-xs font-bold text-slate-800">Pilih Tanggal:</span>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className={`p-2 rounded-xl border ${theme.inputBg} text-xs font-bold outline-none`}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        {ALL_GROUP_NAMES.map((grp) => {
+          const groupStudents = MASTER_STUDENT_DATABASE.filter(s => s.kelompok === grp);
+          const sessionEntry = presensiList.find(p => p.groupName === grp && p.date === selectedDate);
+
+          return (
+            <div key={grp} className={`p-5 rounded-2xl border ${theme.border} ${theme.innerCardBg} space-y-3`}>
+              <div className="flex justify-between items-center border-b border-slate-900/10 pb-2">
+                <span className="font-extrabold text-xs text-white bg-indigo-900 px-3 py-1 rounded-full">
+                  👥 {grp}
+                </span>
+                <span className={`text-xs font-bold ${theme.badge} px-2.5 py-0.5 rounded-md border`}>
+                  {sessionEntry 
+                    ? `Hadir: ${sessionEntry.records.filter(r => r.status === 'Hadir').length} / ${groupStudents.length}` 
+                    : 'Belum diisi oleh kelompok'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {groupStudents.map((student) => {
+                  let status = 'Belum Diisi';
+                  let note = '';
+
+                  if (sessionEntry) {
+                    const rec = sessionEntry.records.find(r => r.nisn === student.nisn || r.name === student.name);
+                    if (rec) {
+                      status = rec.status;
+                      note = rec.note;
+                    }
+                  }
+
+                  return (
+                    <div key={student.nisn} className={`${theme.cardBg} p-3 rounded-xl border ${theme.border} text-xs flex justify-between items-center gap-2`}>
+                      <div className="min-w-0">
+                        <p className="font-bold text-slate-900 truncate">{student.name}</p>
+                        <p className="text-[10px] text-slate-600 font-mono">{student.nisn} • {student.kelas}</p>
+                        {note && <p className="text-[9px] text-slate-700 italic truncate">"{note}"</p>}
+                      </div>
+                      <span className={`px-2 py-1 rounded-md text-[10px] font-bold flex-shrink-0 ${
+                        status === 'Hadir' ? 'bg-emerald-200 text-emerald-950 border border-emerald-300' :
+                        status === 'Sakit' ? 'bg-amber-200 text-amber-950 border border-amber-300' :
+                        status === 'Izin' ? 'bg-sky-200 text-sky-950 border border-sky-300' :
+                        status === 'Alfa' ? 'bg-rose-200 text-rose-950 border border-rose-300' :
+                        status === 'Dispensasi' ? 'bg-purple-200 text-purple-950 border border-purple-300' :
+                        'bg-slate-200 text-slate-700 border border-slate-300'
+                      }`}>
+                        {status}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function AdminRekapTotalKehadiran({ presensiList, theme }) {
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const filteredSessions = useMemo(() => {
+    return presensiList.filter(p => {
+      if (!startDate && !endDate) return true;
+      if (startDate && p.date < startDate) return false;
+      if (endDate && p.date > endDate) return false;
+      return true;
+    });
+  }, [presensiList, startDate, endDate]);
+
+  const studentTotalRekap = useMemo(() => {
+    return MASTER_STUDENT_DATABASE.map(student => {
+      let totalHadir = 0;
+      let totalTidakHadir = 0;
+      let totalSesiGroup = 0;
+
+      const groupSessions = filteredSessions.filter(p => p.groupName === student.kelompok);
+      totalSesiGroup = groupSessions.length;
+
+      groupSessions.forEach(session => {
+        const rec = session.records.find(r => r.nisn === student.nisn || r.name === student.name);
+        if (rec) {
+          if (rec.status === 'Hadir') {
+            totalHadir++;
+          } else if (['Sakit', 'Izin', 'Alfa', 'Dispensasi'].includes(rec.status)) {
+            totalTidakHadir++;
+          }
+        }
+      });
+
+      const percentage = totalSesiGroup > 0 ? Math.round((totalHadir / totalSesiGroup) * 100) : 0;
+
+      return {
+        ...student,
+        totalSesiGroup,
+        totalHadir,
+        totalTidakHadir,
+        percentage
+      };
+    });
+  }, [filteredSessions]);
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  return (
+    <div className="space-y-6">
+      <div id="print-area" className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm space-y-6 print:p-0 print:border-none print:shadow-none`}>
+        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 pb-4 border-b border-slate-900/10 print:hidden">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <PieChart className="w-5 h-5 text-indigo-800" />
+              Rekap Total Kehadiran Seluruh Murid
+            </h3>
+            <p className="text-xs text-slate-600 mt-0.5">
+              Gunakan filter rentang tanggal. Murid dengan persentase kehadiran di bawah 90% diberi highlight merah lembut.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="font-bold text-slate-800">Dari:</span>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className={`p-2 rounded-xl border ${theme.inputBg} text-xs outline-none`}
+              />
+            </div>
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="font-bold text-slate-800">Sampai:</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className={`p-2 rounded-xl border ${theme.inputBg} text-xs outline-none`}
+              />
+            </div>
+            {(startDate || endDate) && (
+              <button 
+                onClick={() => { setStartDate(''); setEndDate(''); }}
+                className={`p-2 rounded-xl ${theme.innerCardBg} text-slate-800 text-xs font-bold transition`}
+              >
+                Reset
+              </button>
+            )}
+            <button
+              onClick={handlePrint}
+              className={`px-4 py-2 ${theme.primaryBtn} rounded-xl font-bold text-xs shadow-sm transition flex items-center gap-1.5`}
+            >
+              <Printer className="w-4 h-4" />
+              Cetak / Simpan PDF
+            </button>
+          </div>
+        </div>
+
+        {/* Kop Surat Header for Print */}
+        <div className="hidden print:block text-center border-b-2 border-slate-900 pb-4 mb-6">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <img src="https://i.ibb.co.com/8gMSjY4F/IMG-20251203-114653.png" alt="Logo" className="w-12 h-12 object-contain" />
+            <div className="text-center">
+              <h1 className="text-lg font-black uppercase tracking-wide text-slate-900">SMP YPU BANDUNG</h1>
+              <h2 className="text-sm font-bold text-slate-700">LAPORAN REKAPITULASI TOTAL KEHADIRAN SISWA KOKURIKULER 2026</h2>
+              <p className="text-xs text-slate-600">
+                {startDate || endDate ? `Periode: ${startDate || 'Awal'} s.d. ${endDate || 'Sekarang'}` : 'Periode: Seluruh Sesi Pertemuan'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto rounded-2xl border border-indigo-300 print:border-slate-800">
+          <table className="w-full text-left text-xs">
+            <thead className={`${theme.tableHeaderBg} uppercase font-bold text-[11px] border-b ${theme.border} print:bg-slate-200 print:text-black`}>
+              <tr>
+                <th className="p-3">No</th>
+                <th className="p-3">Nama Siswa</th>
+                <th className="p-3">NISN / Kelas</th>
+                <th className="p-3">Kelompok</th>
+                <th className="p-3 text-center">Total Sesi</th>
+                <th className="p-3 text-center">Hadir</th>
+                <th className="p-3 text-center">Tidak Hadir</th>
+                <th className="p-3 text-center">% Kehadiran</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-900/10 print:divide-slate-300">
+              {studentTotalRekap.map((s, idx) => {
+                const isUnderThreshold = s.percentage < 90 && s.totalSesiGroup > 0;
+
+                return (
+                  <tr 
+                    key={s.nisn} 
+                    className={`transition ${
+                      isUnderThreshold 
+                        ? 'bg-rose-200/90 text-rose-950 font-medium border-l-4 border-rose-600' 
+                        : 'hover:bg-black/5'
+                    }`}
+                  >
+                    <td className="p-3 font-mono">{idx + 1}</td>
+                    <td className="p-3 font-bold">{s.name}</td>
+                    <td className="p-3 font-mono">{s.nisn} ({s.kelas})</td>
+                    <td className="p-3 font-semibold">{s.kelompok}</td>
+                    <td className="p-3 text-center font-bold">{s.totalSesiGroup}</td>
+                    <td className="p-3 text-center font-bold text-emerald-900">{s.totalHadir}</td>
+                    <td className="p-3 text-center font-bold text-rose-900">{s.totalTidakHadir}</td>
+                    <td className="p-3 text-center">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-black border ${
+                        isUnderThreshold
+                          ? 'bg-rose-300 text-rose-950 border-rose-400'
+                          : 'bg-emerald-200 text-emerald-950 border-emerald-300'
+                      }`}>
+                        {s.percentage}%
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminLkpdDiunggah({ lkpdList, theme }) {
+  const [selectedDate, setSelectedDate] = useState('');
+  const [previewModal, setPreviewModal] = useState({ isOpen: false, title: '', url: '', type: 'image' });
+
+  const filteredLkpd = useMemo(() => {
+    if (!selectedDate) return lkpdList;
+    return lkpdList.filter(l => l.date === selectedDate);
+  }, [lkpdList, selectedDate]);
+
+  return (
+    <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm space-y-6`}>
+      {previewModal.isOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className={`${theme.cardBg} w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden border ${theme.border} flex flex-col max-h-[85vh]`}>
+            <div className={`p-4 ${theme.mobileHeaderBg} text-white flex justify-between items-center`}>
+              <h4 className="font-bold text-sm truncate">{previewModal.title}</h4>
+              <button 
+                onClick={() => setPreviewModal({ isOpen: false, title: '', url: '', type: 'image' })}
+                className="p-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className={`p-4 flex-1 overflow-auto ${theme.innerCardBg} flex items-center justify-center min-h-[260px]`}>
+              <img src={previewModal.url} alt={previewModal.title} className="max-h-[60vh] max-w-full object-contain rounded-2xl" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 pb-4 border-b border-slate-900/10">
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <UploadCloud className="w-5 h-5 text-indigo-800" />
+            LKPD yang Diunggah Per Hari ({filteredLkpd.length})
+          </h3>
+          <p className="text-xs text-slate-600 mt-0.5">
+            Menampilkan unggahan LKPD dan dokumentasi foto dari setiap kelompok berdasarkan tanggal.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Calendar className="w-4 h-4 text-indigo-800" />
+          <span className="text-xs font-bold text-slate-800">Filter Tanggal:</span>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className={`p-2 rounded-xl border ${theme.inputBg} text-xs font-bold outline-none`}
+          />
+          {selectedDate && (
+            <button 
+              onClick={() => setSelectedDate('')}
+              className={`p-2 ${theme.innerCardBg} text-slate-800 rounded-xl text-xs font-bold`}
+            >
+              Reset
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {filteredLkpd.length === 0 ? (
+          <div className={`col-span-2 text-center py-8 ${theme.innerCardBg} rounded-2xl border border-dashed ${theme.border} text-xs text-slate-600`}>
+            Belum ada unggahan LKPD untuk tanggal ini.
+          </div>
+        ) : (
+          filteredLkpd.map((item) => (
+            <div key={item.id} className={`p-5 rounded-2xl border ${theme.border} ${theme.innerCardBg} space-y-3`}>
+              <div className="flex justify-between items-center">
+                <span className="px-3 py-1 rounded-full bg-indigo-900 text-white font-extrabold text-xs">
+                  {item.groupName} — LKPD #{item.number}
+                </span>
+                <span className={`text-xs font-bold ${theme.badge} px-2 py-0.5 rounded border`}>
+                  📅 {item.date}
+                </span>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-sm text-slate-900">{item.title}</h4>
+                <p className="text-xs text-slate-700 mt-0.5">Pemateri: <strong>{item.instructor}</strong></p>
+              </div>
+
+              {/* Photos Grid */}
+              <div className="space-y-2">
+                <p className="text-[11px] font-bold text-slate-900">Foto LKPD ({item.lkpdPhotos?.length || 0}):</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {item.lkpdPhotos?.map((photo, pIdx) => (
+                    <div 
+                      key={pIdx}
+                      onClick={() => setPreviewModal({ isOpen: true, title: photo.name, url: photo.url, type: 'image' })}
+                      className="rounded-xl overflow-hidden border border-slate-900/20 max-h-24 cursor-pointer"
+                    >
+                      <img src={photo.url} alt="LKPD" className="w-full object-cover h-24 hover:scale-105 transition" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {item.docPhotos && item.docPhotos.length > 0 && (
+                <div className="space-y-2 pt-2">
+                  <p className="text-[11px] font-bold text-slate-900">Foto Dokumentasi ({item.docPhotos.length}):</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {item.docPhotos.map((photo, pIdx) => (
+                      <div 
+                        key={pIdx}
+                        onClick={() => setPreviewModal({ isOpen: true, title: photo.name, url: photo.url, type: 'image' })}
+                        className="rounded-xl overflow-hidden border border-slate-900/20 max-h-24 cursor-pointer"
+                      >
+                        <img src={photo.url} alt="Dokumentasi" className="w-full object-cover h-24 hover:scale-105 transition" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AdminRekapPengumpulanLkpd({ lkpdList, theme }) {
+  return (
+    <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm space-y-6`}>
+      <div>
+        <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <FileSpreadsheet className="w-5 h-5 text-indigo-800" />
+          Rekap Pengumpulan LKPD Per Kelompok
+        </h3>
+        <p className="text-xs text-slate-600 mt-0.5">
+          Menampilkan total jumlah LKPD yang telah dikumpulkan oleh masing-masing kelompok.
+        </p>
+      </div>
+
+      <div className="overflow-x-auto rounded-2xl border border-indigo-300">
+        <table className="w-full text-left text-xs">
+          <thead className={`${theme.tableHeaderBg} uppercase font-bold text-[11px] border-b ${theme.border}`}>
+            <tr>
+              <th className="p-3.5">Nama Kelompok</th>
+              <th className="p-3.5">Guru Pembimbing</th>
+              <th className="p-3.5">Ruangan</th>
+              <th className="p-3.5 text-center">Jumlah LKPD Diunggah</th>
+              <th className="p-3.5 text-center">Status Kelengkapan</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-900/10">
+            {ALL_GROUP_NAMES.map((grp) => {
+              const data = getGroupData(grp);
+              const count = lkpdList.filter(l => l.groupName === grp).length;
+
+              return (
+                <tr key={grp} className="hover:bg-black/5 transition">
+                  <td className="p-3.5 font-bold text-slate-900">{grp}</td>
+                  <td className="p-3.5 text-slate-800 font-medium">{data.pembimbing}</td>
+                  <td className="p-3.5 text-slate-700 font-medium">{data.ruangan}</td>
+                  <td className="p-3.5 text-center font-black text-indigo-950 text-sm">{count} Dokumen</td>
+                  <td className="p-3.5 text-center">
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border ${
+                      count > 0 
+                        ? 'bg-emerald-200 text-emerald-950 border-emerald-300' 
+                        : 'bg-amber-200 text-amber-950 border-amber-300'
+                    }`}>
+                      {count > 0 ? 'Sudah Mengumpulkan' : 'Belum Ada Unggahan'}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function AdminJurnalCetak({ journalList, presensiList, theme }) {
+  const [selectedJrnForPrint, setSelectedJrnForPrint] = useState(null);
+
+  const handleTriggerPrintJrn = (jrn) => {
+    setSelectedJrnForPrint(jrn);
+    setTimeout(() => {
+      window.print();
+    }, 300);
+  };
+
+  return (
+    <div className={`${theme.cardBg} p-6 rounded-3xl border ${theme.border} shadow-sm space-y-6`}>
+      {/* Printable Area for Journal Report */}
+      {selectedJrnForPrint && (
+        <div id="print-area" className="hidden print:block fixed inset-0 bg-white p-8 text-slate-900 z-50">
+          <div className="border-b-2 border-slate-900 pb-4 mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="https://i.ibb.co.com/8gMSjY4F/IMG-20251203-114653.png" alt="Logo" className="w-12 h-12 object-contain" />
+              <div>
+                <h1 className="text-base font-black uppercase text-slate-900">SMP YPU BANDUNG</h1>
+                <h2 className="text-xs font-bold text-slate-700">LAPORAN JURNAL HARIAN KOKURIKULER 2026</h2>
+              </div>
+            </div>
+            <div className="text-right text-xs">
+              <p className="font-bold">Tanggal Cetak: {new Date().toLocaleDateString('id-ID')}</p>
+            </div>
+          </div>
+
+          <div className="space-y-4 text-xs">
+            <div className="grid grid-cols-2 gap-4 bg-slate-100 p-4 rounded-xl border border-slate-300">
+              <div>
+                <p><strong>Kelompok:</strong> {selectedJrnForPrint.groupName || 'Arunika 1'}</p>
+                <p><strong>Tanggal Kegiatan:</strong> {selectedJrnForPrint.date}</p>
+                <p><strong>Waktu:</strong> {selectedJrnForPrint.startTime} - {selectedJrnForPrint.endTime} WIB</p>
+              </div>
+              <div>
+                <p><strong>Nama Pemateri:</strong> {selectedJrnForPrint.instructor}</p>
+                <p><strong>Ruangan:</strong> {getGroupData(selectedJrnForPrint.groupName || 'Arunika 1').ruangan}</p>
+                <p><strong>Topik:</strong> {selectedJrnForPrint.topic}</p>
+              </div>
+            </div>
+
+            <div className="border border-slate-300 p-4 rounded-xl">
+              <h4 className="font-bold uppercase text-slate-800 mb-2">Resume / Ringkasan Kegiatan:</h4>
+              <p className="leading-relaxed">{selectedJrnForPrint.summary}</p>
+            </div>
+
+            <div className="border border-slate-300 p-4 rounded-xl space-y-2">
+              <h4 className="font-bold uppercase text-slate-800">Daftar Kehadiran Murid ({selectedJrnForPrint.groupName || 'Arunika 1'} - {selectedJrnForPrint.date}):</h4>
+              <table className="w-full text-left border-collapse border border-slate-300 text-[11px]">
+                <thead className="bg-slate-200 text-slate-900">
+                  <tr>
+                    <th className="border border-slate-300 p-2">NISN</th>
+                    <th className="border border-slate-300 p-2">Nama Siswa</th>
+                    <th className="border border-slate-300 p-2">Kelas</th>
+                    <th className="border border-slate-300 p-2 text-center">Status Kehadiran</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {MASTER_STUDENT_DATABASE.filter(s => s.kelompok === (selectedJrnForPrint.groupName || 'Arunika 1')).map(st => {
+                    const session = presensiList.find(p => p.groupName === st.kelompok && p.date === selectedJrnForPrint.date);
+                    const rec = session?.records?.find(r => r.nisn === st.nisn || r.name === st.name);
+                    const status = rec ? rec.status : 'Belum Diisi';
+
+                    return (
+                      <tr key={st.nisn}>
+                        <td className="border border-slate-300 p-2">{st.nisn}</td>
+                        <td className="border border-slate-300 p-2 font-bold">{st.name}</td>
+                        <td className="border border-slate-300 p-2">{st.kelas}</td>
+                        <td className="border border-slate-300 p-2 text-center font-bold">{status}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8 pt-8 text-center">
+              <div>
+                <p className="mb-12">Guru Pembimbing / Pemateri</p>
+                <p className="font-bold underline">{selectedJrnForPrint.instructor}</p>
+              </div>
+              <div>
+                <p className="mb-12">Ketua Kelompok</p>
+                <p className="font-bold underline">_________________________</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex justify-between items-center pb-4 border-b border-slate-900/10">
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <Printer className="w-5 h-5 text-indigo-800" />
+            Laporan Jurnal Kegiatan & Cetak PDF ({journalList.length})
+          </h3>
+          <p className="text-xs text-slate-600 mt-0.5">
+            Laporan jurnal yang diisikan oleh setiap kelompok per pematerian. Klik tombol Cetak untuk mengunduh versi PDF.
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {journalList.length === 0 ? (
+          <div className={`text-center py-8 ${theme.innerCardBg} rounded-2xl border border-dashed ${theme.border} text-xs text-slate-600`}>
+            Belum ada jurnal kegiatan tersimpan.
+          </div>
+        ) : (
+          journalList.map((jrn) => (
+            <div key={jrn.id} className={`p-5 rounded-2xl border ${theme.border} ${theme.innerCardBg} space-y-3`}>
+              <div className="flex justify-between items-center border-b border-slate-900/10 pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-extrabold text-xs text-white bg-indigo-900 px-3 py-1 rounded-full">
+                    👥 {jrn.groupName || 'Arunika 1'}
+                  </span>
+                  <span className="text-xs text-slate-800 font-bold">
+                    📅 {jrn.date} ({jrn.startTime} - {jrn.endTime} WIB)
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => handleTriggerPrintJrn(jrn)}
+                  className={`px-3 py-1.5 ${theme.primaryBtn} rounded-xl font-bold text-xs shadow-xs transition flex items-center gap-1.5`}
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  Cetak Jurnal PDF
+                </button>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-sm text-slate-900">{jrn.topic}</h4>
+                <p className="text-xs text-slate-700 mt-0.5">Pemateri: <strong className="text-indigo-950">{jrn.instructor}</strong></p>
+              </div>
+
+              <p className={`text-xs text-slate-800 leading-relaxed ${theme.cardBg} p-3 rounded-xl border ${theme.border}`}>
+                {jrn.summary}
+              </p>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function getAdminMenuTitle(menu) {
+  switch (menu) {
+    case 'admin_ringkasan': return 'Ringkasan Kelompok';
+    case 'admin_rekap_struktur': return 'Rekap Struktur Kelompok';
+    case 'admin_presensi_harian': return 'Presensi Harian';
+    case 'admin_rekap_total_presensi': return 'Rekap Total Kehadiran';
+    case 'admin_lkpd_diunggah': return 'LKPD yang Diunggah';
+    case 'admin_rekap_lkpd': return 'Rekap Pengumpulkan LKPD';
+    case 'admin_jurnal_cetak': return 'Jurnal Kegiatan & Cetak';
+    default: return 'Portal Administrator Kokurikuler';
+  }
+}
+
+function getAdminMenuSubtitle(menu) {
+  switch (menu) {
+    case 'admin_ringkasan': return 'Tinjauan umum data nama kelompok, ketua, jumlah murid, LKPD, dan jurnal.';
+    case 'admin_rekap_struktur': return 'Monitoring penetapan posisi Ketua dan Sekretaris seluruh kelompok.';
+    case 'admin_presensi_harian': return 'Pantau status kehadiran siswa per hari dipisahkan berdasarkan kelompoknya.';
+    case 'admin_rekap_total_presensi': return 'Rekapitulasi total presensi dengan filter rentang tanggal dan cetak PDF.';
+    case 'admin_lkpd_diunggah': return 'Tinjau berkas LKPD dan dokumentasi foto yang diunggah per harinya.';
+    case 'admin_rekap_lkpd': return 'Rekapitulasi total pengumpulkan LKPD dari setiap kelompok.';
+    case 'admin_jurnal_cetak': return 'Cetak laporan jurnal kegiatan resmi lengkap dengan daftar hadir harian.';
+    default: return 'Dashboard Manajemen Administrator SMP YPU Bandung 2026';
+  }
+}
+
+function getMenuTitle(menu) {
+  switch (menu) {
+    case 'home': return 'Ringkasan & Profil Kelompok';
+    case 'struktur': return 'Struktur Organisasi Kelompok';
+    case 'presensi': return 'Manajemen Presensi Siswa';
+    case 'lkpd': return 'Pengumpulan LKPD Digital';
+    case 'jurnal': return 'Jurnal Harian Kegiatan';
+    case 'profil': return 'Dimensi Profil Lulusan';
+    case 'mapel': return 'Mata Pelajaran Terintegrasi';
+    default: return 'Dashboard Kokurikuler';
+  }
+}
+
+function getMenuSubtitle(menu, groupName) {
+  switch (menu) {
+    case 'home': return `Selamat datang kembali, tim ${groupName}. Pantau perkembangan proyek kokurikuler kalian di sini.`;
+    case 'struktur': return 'Atur pembagian peran Ketua dan Sekretaris untuk memperlancar administrasi kelompok.';
+    case 'presensi': return 'Pencatatan kehadiran seluruh anggota dalam setiap sesi pertemuan kegiatan kokurikuler.';
+    case 'lkpd': return 'Unggah foto LKPD dan foto dokumentasi kegiatan tepat waktu.';
+    case 'jurnal': return 'Dokumentasikan ringkasan materi dan progres kegiatan dari pemateri secara terstruktur.';
+    case 'profil': return 'Panduan indikator perkembangan karakter dan kompetensi abad-21 peserta didik.';
+    case 'mapel': return 'Integrasi kompetensi antar mata pelajaran dalam kerangka kegiatan kokurikuler.';
+    default: return '';
+  }
+}
+
+function LoginPage({ onLogin }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError('');
+
+    const cleanUser = username.trim().toLowerCase();
+
+    if (cleanUser === ADMIN_CREDENTIAL.username && password === ADMIN_CREDENTIAL.password) {
+      onLogin({ username: ADMIN_CREDENTIAL.username, role: 'admin' });
+      return;
+    }
+
+    const matchGroup = GROUP_CREDENTIALS[cleanUser];
+    if (matchGroup && password === matchGroup.password) {
+      onLogin({
+        username: matchGroup.username,
+        groupName: matchGroup.groupName,
+        role: 'student'
+      });
+      return;
+    }
+
+    setError('Username atau Password tidak sesuai! Silakan periksa kembali.');
+  };
+
+  return (
+    <div 
+      className="min-h-screen bg-[#070F1E] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden bg-cover bg-center"
+      style={{ backgroundImage: `url('https://i.ibb.co.com/5WGYcrcP/360-F-824284185-s-Yzxo3-Rm-Mq-Alb-Gi-ADOch-P8-Bty-Lcgr9z5.jpg')` }}
+    >
+      <div className="absolute inset-0 bg-[#070F1E]/80 backdrop-blur-sm"></div>
+
+      <div className="max-w-md w-full bg-[#0B172A]/85 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-slate-700/60 relative z-10 space-y-6 text-slate-100">
+        <div className="text-center space-y-2">
+          <div className="w-20 h-20 bg-[#112240] border-2 border-sky-400/40 rounded-3xl flex items-center justify-center mx-auto shadow-inner p-2">
+            <img src="https://i.ibb.co.com/8gMSjY4F/IMG-20251203-114653.png" alt="Logo SMP YPU Bandung" className="w-full h-full object-contain" />
+          </div>
+          <h2 className="text-2xl font-black text-white tracking-tight">
+            Portal Kegiatan Kokurikuler
+          </h2>
+          <p className="text-xs font-bold text-sky-300">
+            Sistem Presensi, LKPD, dan Jurnal Sesi Pre-Camp
+          </p>
+          <p className="text-[11px] text-slate-400 font-medium">SMP YPU Bandung Tahun 2026</p>
+        </div>
+
+        {error && (
+          <div className="p-3 rounded-2xl bg-rose-950/80 border border-rose-500/50 text-rose-200 text-xs font-semibold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-400" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
+              Username
+            </label>
+            <input
+              type="text"
+              placeholder="Contoh: arunika_1"
+              value={username}
+              onChange={(e) => { setUsername(e.target.value); setError(''); }}
+              required
+              className="w-full p-3.5 bg-[#112240]/90 border border-slate-700 rounded-2xl font-semibold text-xs text-white focus:bg-[#112240] focus:border-sky-400 focus:ring-2 focus:ring-sky-400/30 outline-none transition placeholder-slate-500"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
+              Password
+            </label>
+            <input
+              type="password"
+              placeholder="Masukkan password..."
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setError(''); }}
+              required
+              className="w-full p-3.5 bg-[#112240]/90 border border-slate-700 rounded-2xl font-semibold text-xs text-white focus:bg-[#112240] focus:border-sky-400 focus:ring-2 focus:ring-sky-400/30 outline-none transition placeholder-slate-500"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-3.5 bg-gradient-to-r from-[#1D3557] to-[#0D1B2A] hover:from-[#25446E] hover:to-[#132A42] text-white font-bold rounded-2xl text-sm shadow-xl border border-sky-500/40 transition flex items-center justify-center gap-2 mt-2"
+          >
+            <LogIn className="w-4 h-4 text-sky-400" />
+            Masuk ke Sistem Kokurikuler
+          </button>
+        </form>
+
+        <div className="bg-[#112240]/80 p-3.5 rounded-2xl border border-slate-700/80 text-[11px] text-slate-300 space-y-1">
+          <p className="font-bold text-sky-300 flex items-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
+            Petunjuk Login:
+          </p>
+          <p>• <strong>Akun Kelompok:</strong> Gunakan username (misal: <code>arunika_1</code>) dan password yang sama dengan username.</p>
+        </div>
+
+        <p className="text-[11px] text-center text-sky-200 font-bold tracking-wide border-t border-slate-800 pt-3">
+          ⛺ Co-Curriculer - Character Building Camp ⛺
+        </p>
+      </div>
+    </div>
+  );
+}
